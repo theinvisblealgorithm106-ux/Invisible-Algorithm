@@ -5,7 +5,7 @@ import { ArrowLeft, Calendar, Eye, Download, ExternalLink, User } from 'lucide-r
 import { formatDate, formatCategory } from '@/lib/utils';
 
 interface Props {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
 async function getResearch(slug: string) {
@@ -23,7 +23,8 @@ async function getResearch(slug: string) {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const paper = await getResearch(params.slug);
+  const { slug } = await params;
+  const paper = await getResearch(slug);
   if (!paper) return { title: 'Not Found' };
   return {
     title: paper.title,
@@ -32,7 +33,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function ResearchDetailPage({ params }: Props) {
-  const paper = await getResearch(params.slug);
+  const { slug } = await params;
+  const paper = await getResearch(slug);
 
   if (!paper) notFound();
 

@@ -49,7 +49,7 @@ export default function Navbar() {
       className={cn(
         'fixed top-0 left-0 right-0 z-50 transition-all duration-300',
         scrolled
-          ? 'bg-bg/95 backdrop-blur-xl border-b border-border shadow-lg shadow-black/20'
+          ? 'bg-white/95 backdrop-blur-xl border-b border-border shadow-lg shadow-text-primary/8'
           : 'bg-transparent'
       )}
     >
@@ -102,7 +102,7 @@ export default function Navbar() {
                 </button>
 
                 {userMenuOpen && (
-                  <div className="absolute right-0 top-full mt-2 w-52 bg-bg-surface border border-border rounded-xl shadow-xl shadow-black/40 overflow-hidden animate-in">
+                  <div className="absolute right-0 top-full mt-2 w-52 bg-white border border-border rounded-xl shadow-xl shadow-text-primary/10 overflow-hidden animate-in">
                     <div className="p-3 border-b border-border">
                       <p className="text-sm font-medium text-text-primary">{user.firstName} {user.lastName}</p>
                       <p className="text-xs text-text-tertiary mt-0.5 capitalize">{user.role.replace('_', ' ')}</p>
@@ -153,7 +153,7 @@ export default function Navbar() {
 
       {/* Mobile Menu */}
       {isOpen && (
-        <div className="md:hidden bg-bg-subtle/98 backdrop-blur-xl border-b border-border animate-in">
+        <div className="md:hidden bg-white/98 backdrop-blur-xl border-b border-border animate-in">
           <div className="container-page py-4 space-y-1">
             {navLinks.map((link) => (
               <Link

@@ -50,7 +50,7 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={inter.variable}>
       <body className="bg-bg text-text-primary antialiased">
@@ -61,17 +61,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           position="bottom-right"
           toastOptions={{
             style: {
-              background: '#14141e',
-              color: '#f8fafc',
-              border: '1px solid #222234',
-              borderRadius: '10px',
+              background: '#FFFFFF',
+              color: '#1A1A2E',
+              border: '1px solid #E2D9CC',
+              borderRadius: '12px',
               fontSize: '14px',
+              boxShadow: '0 8px 30px rgba(0,0,0,0.1)',
             },
             success: {
-              iconTheme: { primary: '#10b981', secondary: '#14141e' },
+              iconTheme: { primary: '#3DAD8D', secondary: '#FFFFFF' },
             },
             error: {
-              iconTheme: { primary: '#ef4444', secondary: '#14141e' },
+              iconTheme: { primary: '#E53E3E', secondary: '#FFFFFF' },
             },
           }}
         />
