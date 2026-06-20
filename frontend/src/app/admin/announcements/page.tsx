@@ -8,7 +8,7 @@ import { formatDate, getStatusColor, cn } from '@/lib/utils';
 import { useAuthStore } from '@/store/authStore';
 import toast from 'react-hot-toast';
 
-interface AnnouncementForm {
+interface AnnouncementForm extends Record<string, unknown> {
   title: string;
   content: string;
   category: string;
