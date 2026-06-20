@@ -11,13 +11,15 @@ const generateTokens = (userId: string, role: string) => {
   const accessToken = jwt.sign(
     { userId, role, type: 'access' } as JwtPayload,
     env.JWT_SECRET,
-    { expiresIn: env.JWT_EXPIRES_IN }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    { expiresIn: env.JWT_EXPIRES_IN as any }
   );
 
   const refreshToken = jwt.sign(
     { userId, role, type: 'refresh' } as JwtPayload,
     env.JWT_REFRESH_SECRET,
-    { expiresIn: env.JWT_REFRESH_EXPIRES_IN }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    { expiresIn: env.JWT_REFRESH_EXPIRES_IN as any }
   );
 
   return { accessToken, refreshToken };
