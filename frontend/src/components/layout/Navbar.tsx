@@ -3,13 +3,11 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Menu, X, ChevronDown, LogOut, User, LayoutDashboard, Shield } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useAuthStore } from '@/store/authStore';
-import { authApi } from '@/lib/api';
-import toast from 'react-hot-toast';
 
 const navLinks = [
+  { href: '/', label: 'Home' },
   { href: '/research', label: 'Research' },
   { href: '/events', label: 'Events' },
   { href: '/team', label: 'Team' },
@@ -19,9 +17,7 @@ const navLinks = [
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [userMenuOpen, setUserMenuOpen] = useState(false);
   const pathname = usePathname();
-  const { user, isAuthenticated, logout, hasRole } = useAuthStore();
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -31,18 +27,7 @@ export default function Navbar() {
 
   useEffect(() => {
     setIsOpen(false);
-    setUserMenuOpen(false);
   }, [pathname]);
-
-  const handleLogout = async () => {
-    try {
-      await authApi.logout();
-    } catch {
-      // ignore API error
-    }
-    logout();
-    toast.success('Logged out successfully');
-  };
 
   return (
     <nav
@@ -74,7 +59,7 @@ export default function Navbar() {
                 href={link.href}
                 className={cn(
                   'px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-150',
-                  pathname === link.href || pathname.startsWith(link.href + '/')
+                  pathname === link.href || (link.href !== '/' && pathname.startsWith(link.href + '/'))
                     ? 'text-primary-light bg-primary/10'
                     : 'text-text-secondary hover:text-text-primary hover:bg-bg-elevated'
                 )}
@@ -86,58 +71,9 @@ export default function Navbar() {
 
           {/* Right side */}
           <div className="hidden md:flex items-center gap-3">
-            {isAuthenticated && user ? (
-              <div className="relative">
-                <button
-                  onClick={() => setUserMenuOpen(!userMenuOpen)}
-                  className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-bg-elevated transition-colors text-sm"
-                >
-                  <div className="w-7 h-7 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center">
-                    <span className="text-primary-light text-xs font-semibold">
-                      {user.firstName.charAt(0)}{user.lastName.charAt(0)}
-                    </span>
-                  </div>
-                  <span className="text-text-secondary max-w-[100px] truncate">{user.firstName}</span>
-                  <ChevronDown className={cn('w-3.5 h-3.5 text-text-tertiary transition-transform', userMenuOpen && 'rotate-180')} />
-                </button>
-
-                {userMenuOpen && (
-                  <div className="absolute right-0 top-full mt-2 w-52 bg-white border border-border rounded-xl shadow-xl shadow-text-primary/10 overflow-hidden animate-in">
-                    <div className="p-3 border-b border-border">
-                      <p className="text-sm font-medium text-text-primary">{user.firstName} {user.lastName}</p>
-                      <p className="text-xs text-text-tertiary mt-0.5 capitalize">{user.role.replace('_', ' ')}</p>
-                    </div>
-                    <div className="p-1.5">
-                      <Link href="/dashboard" className="flex items-center gap-2.5 px-3 py-2 text-sm text-text-secondary hover:text-text-primary hover:bg-bg-elevated rounded-lg transition-colors">
-                        <LayoutDashboard className="w-4 h-4" /> Dashboard
-                      </Link>
-                      <Link href="/dashboard/profile" className="flex items-center gap-2.5 px-3 py-2 text-sm text-text-secondary hover:text-text-primary hover:bg-bg-elevated rounded-lg transition-colors">
-                        <User className="w-4 h-4" /> Profile
-                      </Link>
-                      {hasRole(['admin', 'super_admin']) && (
-                        <Link href="/admin" className="flex items-center gap-2.5 px-3 py-2 text-sm text-primary-light hover:text-primary hover:bg-primary/10 rounded-lg transition-colors">
-                          <Shield className="w-4 h-4" /> Admin Panel
-                        </Link>
-                      )}
-                    </div>
-                    <div className="p-1.5 border-t border-border">
-                      <button onClick={handleLogout} className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-error hover:bg-error/10 rounded-lg transition-colors">
-                        <LogOut className="w-4 h-4" /> Sign Out
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <>
-                <Link href="/auth/login" className="btn-ghost text-sm">
-                  Sign In
-                </Link>
-                <Link href="/join" className="btn-primary text-sm">
-                  Join Us
-                </Link>
-              </>
-            )}
+            <Link href="/join" className="btn-primary text-sm">
+              Join Us
+            </Link>
           </div>
 
           {/* Mobile toggle */}
@@ -169,21 +105,8 @@ export default function Navbar() {
                 {link.label}
               </Link>
             ))}
-            <div className="pt-3 border-t border-border mt-3 space-y-2">
-              {isAuthenticated ? (
-                <>
-                  <Link href="/dashboard" className="block px-4 py-3 rounded-lg text-sm text-text-secondary hover:bg-bg-elevated">Dashboard</Link>
-                  {hasRole(['admin', 'super_admin']) && (
-                    <Link href="/admin" className="block px-4 py-3 rounded-lg text-sm text-primary-light hover:bg-primary/10">Admin Panel</Link>
-                  )}
-                  <button onClick={handleLogout} className="w-full text-left px-4 py-3 rounded-lg text-sm text-error hover:bg-error/10">Sign Out</button>
-                </>
-              ) : (
-                <>
-                  <Link href="/auth/login" className="block px-4 py-3 rounded-lg text-sm text-text-secondary hover:bg-bg-elevated">Sign In</Link>
-                  <Link href="/join" className="btn-primary w-full justify-center">Join Us</Link>
-                </>
-              )}
+            <div className="pt-3 border-t border-border mt-3">
+              <Link href="/join" className="btn-primary w-full justify-center">Join Us</Link>
             </div>
           </div>
         </div>
