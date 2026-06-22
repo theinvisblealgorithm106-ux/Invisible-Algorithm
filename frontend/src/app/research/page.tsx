@@ -195,8 +195,8 @@ export default function ResearchPage() {
           <p className="text-text-secondary mb-6 max-w-md mx-auto">
             Members can submit original research papers for review and publication on our platform.
           </p>
-          <Link href="/join" className="btn-primary">
-            Become a Researcher <ArrowRight className="w-4 h-4" />
+          <Link href="/submit" className="btn-primary">
+            Submit Research <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
       </section>
