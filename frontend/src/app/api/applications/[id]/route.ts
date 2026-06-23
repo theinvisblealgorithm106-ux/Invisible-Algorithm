@@ -1,0 +1,33 @@
+import { NextResponse } from 'next/server';
+import { connectDB } from '@/lib/mongodb';
+import { Application } from '@/models/Application';
+import { requireAdmin } from '@/lib/auth-helpers';
+
+export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
+  try {
+    requireAdmin(req);
+    await connectDB();
+    const { id } = await params;
+    const application = await Application.findById(id);
+    if (!application) return NextResponse.json({ success: false, message: 'Not found' }, { status: 404 });
+    return NextResponse.json({ success: true, data: { application } });
+  } catch (err) {
+    if (err instanceof NextResponse) return err;
+    return NextResponse.json({ success: false, message: 'Server error' }, { status: 500 });
+  }
+}
+
+export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
+  try {
+    requireAdmin(req);
+    await connectDB();
+    const { id } = await params;
+    const body = await req.json();
+    const application = await Application.findByIdAndUpdate(id, { ...body, reviewedAt: new Date() }, { new: true });
+    if (!application) return NextResponse.json({ success: false, message: 'Not found' }, { status: 404 });
+    return NextResponse.json({ success: true, data: { application } });
+  } catch (err) {
+    if (err instanceof NextResponse) return err;
+    return NextResponse.json({ success: false, message: 'Server error' }, { status: 500 });
+  }
+}
