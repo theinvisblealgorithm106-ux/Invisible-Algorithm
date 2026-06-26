@@ -6,6 +6,39 @@ import { usersApi } from '@/lib/api';
 import { User } from '@/types';
 import { getInitials, getRoleBadgeColor, cn } from '@/lib/utils';
 
+const executiveTeam = [
+  {
+    id: 'ishita-batra',
+    firstName: 'Ishita',
+    lastName: 'Batra',
+    role: 'Founder',
+    bio: "What began as curiosity slowly turned into Invisible Algorithm — a youth-led initiative dedicated to making technology and AI more accessible to students worldwide. Growing up between a computer scientist father and an economics-minded family, Ishita turned dinner-table debates about bugs and profit-loss into a global student community.",
+  },
+  {
+    id: 'tanya-mangla',
+    firstName: 'Tanya',
+    lastName: 'Mangla',
+    role: 'Executive Team',
+    bio: "A Grade 10 student surrounded by finance professionals since childhood, Tanya was already decoding GST before fifth grade. Her curiosity about finance and AI eventually led her to The Invisible Algorithm, where she connects both worlds for students everywhere.",
+  },
+  {
+    id: 'aarvi-malik',
+    firstName: 'Aarvi',
+    lastName: 'Malik',
+    role: 'Executive Head of Social Media and Outreach',
+    school: 'Bal Bharati Public School, Pitampura',
+    bio: "A Grade 10 student and public speaker since age 3, Aarvi won Best Speaker from India's Ministry of Education and earned an honourable mention at The GOI Peace Foundation Japan International Essay Competition. Through TIA's workshops, she connects brilliant learners globally.",
+  },
+  {
+    id: 'saanvi',
+    firstName: 'Saanvi',
+    lastName: '',
+    role: 'Executive Director of Creative Design',
+    school: 'Harold M. Braithwaite (IB Diploma, Canada)',
+    bio: "A passionate artist and IB student in Canada, Saanvi discovered her love for art in Grade 5 and hasn't stopped creating since. She believes art is about expressing who you are — from colours to fashion to design — and leads TIA's creative vision to inspire imagination and innovation.",
+  },
+];
+
 const roleOrder: Record<string, number> = {
   super_admin: 0,
   admin: 1,
@@ -83,6 +116,39 @@ export default function TeamPage() {
               >
                 {role === '' ? 'All' : roleLabels[role]}
               </button>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Executive Team */}
+      <section className="section-sm border-b border-border">
+        <div className="container-page">
+          <p className="label mb-3">Leadership</p>
+          <h2 className="heading-md mb-8">Executive Team</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {executiveTeam.map((member) => (
+              <div key={member.id} className="card-hover text-center group">
+                <div className="relative mx-auto w-16 h-16 mb-4">
+                  <div className="w-full h-full rounded-full bg-primary/10 border-2 border-border group-hover:border-primary/50 transition-colors flex items-center justify-center">
+                    <span className="text-primary-light font-semibold text-lg">
+                      {getInitials(member.firstName, member.lastName || member.firstName)}
+                    </span>
+                  </div>
+                </div>
+                <h3 className="font-semibold text-text-primary text-sm mb-1">
+                  {member.firstName}{member.lastName ? ` ${member.lastName}` : ''}
+                </h3>
+                <span className="badge text-xs bg-primary/10 text-primary-light border-primary/20 mb-2">
+                  {member.role}
+                </span>
+                {member.school && (
+                  <p className="text-xs text-text-tertiary mt-2 line-clamp-1">{member.school}</p>
+                )}
+                {member.bio && (
+                  <p className="text-xs text-text-tertiary mt-3 line-clamp-3">{member.bio}</p>
+                )}
+              </div>
             ))}
           </div>
         </div>
