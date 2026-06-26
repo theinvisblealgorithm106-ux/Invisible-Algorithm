@@ -3,8 +3,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { Calendar, MapPin, Users, Filter, Search, Globe, Monitor, Video } from 'lucide-react';
-import { eventsApi } from '@/lib/api';
-import { Event } from '@/types';
+import { client } from '@/sanity/client';
+import { eventsQuery } from '@/sanity/queries';
+import type { SanityEvent } from '@/sanity/types';
 import { formatDate, formatDatetime, getStatusColor, EVENT_TYPES, cn } from '@/lib/utils';
 
 const formatIcons: Record<string, React.ElementType> = {
@@ -14,7 +15,7 @@ const formatIcons: Record<string, React.ElementType> = {
 };
 
 export default function EventsPage() {
-  const [events, setEvents] = useState<Event[]>([]);
+  const [events, setEvents] = useState<SanityEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [type, setType] = useState('');
@@ -27,15 +28,15 @@ export default function EventsPage() {
   const fetchEvents = useCallback(async () => {
     setLoading(true);
     try {
-      const params: Record<string, unknown> = { page, limit: 12 };
-      if (type) params.type = type;
-      if (format) params.format = format;
-      if (showUpcoming) params.upcoming = 'true';
-
-      const res = await eventsApi.getAll(params);
-      setEvents(res.data.data.events);
-      setTotalPages(res.data.data.pagination.pages);
-      setTotal(res.data.data.pagination.total);
+      const data: SanityEvent[] = await client.fetch(eventsQuery, {
+        type: type || '',
+        format: format || '',
+        upcoming: showUpcoming,
+      });
+      const totalItems = data.length;
+      setTotal(totalItems);
+      setTotalPages(Math.ceil(totalItems / 12) || 1);
+      setEvents(data.slice((page - 1) * 12, page * 12));
     } catch (err) {
       console.error(err);
     } finally {

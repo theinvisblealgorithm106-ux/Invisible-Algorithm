@@ -3,20 +3,18 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Calendar, Eye, Download, ExternalLink, User } from 'lucide-react';
 import { formatDate, formatCategory } from '@/lib/utils';
+import { client } from '@/sanity/client';
+import { researchDetailQuery } from '@/sanity/queries';
+import type { SanityResearchDetail } from '@/sanity/types';
 
 interface Props {
   params: Promise<{ slug: string }>;
 }
 
-async function getResearch(slug: string) {
+async function getResearch(slug: string): Promise<SanityResearchDetail | null> {
   try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/research/${slug}`,
-      { next: { revalidate: 300 } }
-    );
-    if (!res.ok) return null;
-    const data = await res.json();
-    return data.data?.research || null;
+    const data = await client.fetch(researchDetailQuery, { slug });
+    return data || null;
   } catch {
     return null;
   }

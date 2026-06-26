@@ -2,8 +2,9 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { Bell, Pin } from 'lucide-react';
-import { announcementsApi } from '@/lib/api';
-import { Announcement } from '@/types';
+import { client } from '@/sanity/client';
+import { announcementsQuery } from '@/sanity/queries';
+import type { SanityAnnouncement } from '@/sanity/types';
 import { formatDate, getStatusColor, cn } from '@/lib/utils';
 
 const categoryColors: Record<string, string> = {
@@ -16,7 +17,7 @@ const categoryColors: Record<string, string> = {
 };
 
 export default function AnnouncementsPage() {
-  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
+  const [announcements, setAnnouncements] = useState<SanityAnnouncement[]>([]);
   const [loading, setLoading] = useState(true);
   const [category, setCategory] = useState('');
   const [page, setPage] = useState(1);
@@ -25,11 +26,10 @@ export default function AnnouncementsPage() {
   const fetchAnnouncements = useCallback(async () => {
     setLoading(true);
     try {
-      const params: Record<string, unknown> = { page, limit: 10, status: 'published' };
-      if (category) params.category = category;
-      const res = await announcementsApi.getAll(params);
-      setAnnouncements(res.data.data.announcements);
-      setTotalPages(res.data.data.pagination.pages);
+      const data: SanityAnnouncement[] = await client.fetch(announcementsQuery, { category: category || '' });
+      const totalItems = data.length;
+      setTotalPages(Math.ceil(totalItems / 10) || 1);
+      setAnnouncements(data.slice((page - 1) * 10, page * 10));
     } catch {}
     setLoading(false);
   }, [page, category]);

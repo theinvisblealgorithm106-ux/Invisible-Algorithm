@@ -3,13 +3,14 @@
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { Search, Filter, ArrowRight, BookOpen, Eye, Calendar } from 'lucide-react';
-import { researchApi } from '@/lib/api';
-import { Research } from '@/types';
+import { client } from '@/sanity/client';
+import { researchQuery } from '@/sanity/queries';
+import type { SanityResearch } from '@/sanity/types';
 import { formatDate, formatCategory, getStatusColor, RESEARCH_CATEGORIES, truncate } from '@/lib/utils';
 import { cn } from '@/lib/utils';
 
 export default function ResearchPage() {
-  const [research, setResearch] = useState<Research[]>([]);
+  const [research, setResearch] = useState<SanityResearch[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('');
@@ -20,14 +21,18 @@ export default function ResearchPage() {
   const fetchResearch = useCallback(async () => {
     setLoading(true);
     try {
-      const params: Record<string, unknown> = { page, limit: 12 };
-      if (search) params.search = search;
-      if (category) params.category = category;
-
-      const res = await researchApi.getAll(params);
-      setResearch(res.data.data.research);
-      setTotalPages(res.data.data.pagination.pages);
-      setTotal(res.data.data.pagination.total);
+      const data: SanityResearch[] = await client.fetch(researchQuery, { category: category || '' });
+      const filtered = search
+        ? data.filter(p =>
+            p.title.toLowerCase().includes(search.toLowerCase()) ||
+            (p.abstract || '').toLowerCase().includes(search.toLowerCase()) ||
+            (p.authorName || '').toLowerCase().includes(search.toLowerCase())
+          )
+        : data;
+      const totalItems = filtered.length;
+      setTotal(totalItems);
+      setTotalPages(Math.ceil(totalItems / 12) || 1);
+      setResearch(filtered.slice((page - 1) * 12, page * 12));
     } catch (err) {
       console.error(err);
     } finally {

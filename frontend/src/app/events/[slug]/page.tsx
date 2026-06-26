@@ -5,21 +5,23 @@ import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Calendar, Clock, MapPin, Users, Globe, Video, ExternalLink, User } from 'lucide-react';
 import { eventsApi } from '@/lib/api';
-import { Event } from '@/types';
+import { client } from '@/sanity/client';
+import { eventDetailQuery } from '@/sanity/queries';
+import type { SanityEventDetail } from '@/sanity/types';
 import { formatDatetime, formatDate, getStatusColor, cn } from '@/lib/utils';
 import toast from 'react-hot-toast';
 
 export default function EventDetailPage() {
   const { slug } = useParams() as { slug: string };
-  const [event, setEvent] = useState<Event | null>(null);
+  const [event, setEvent] = useState<SanityEventDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [registering, setRegistering] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [regData, setRegData] = useState({ name: '', email: '' });
 
   useEffect(() => {
-    eventsApi.getById(slug)
-      .then(res => setEvent(res.data.data.event))
+    client.fetch(eventDetailQuery, { slug })
+      .then((data: SanityEventDetail | null) => setEvent(data))
       .catch(() => {})
       .finally(() => setLoading(false));
   }, [slug]);
