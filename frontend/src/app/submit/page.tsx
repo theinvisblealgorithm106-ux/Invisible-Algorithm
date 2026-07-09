@@ -1,6 +1,9 @@
-// Replace with the real Google Form embed URL once the form is created
-// (Form > Send > embed <> > copy the src, or append ?embedded=true to the form's viewform URL)
-const GOOGLE_FORM_EMBED_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSeMW8v3SrQDQhL8ek82qgyfTRT85vnTv1QkIdsxrChm4p-3Tw/viewform?embedded=true';
+import { ExternalLink } from 'lucide-react';
+
+// Google Forms requires sign-in for forms with File Upload questions, which
+// blocks it from being embedded in an iframe (sign-in pages can't be framed) —
+// so this links out instead of embedding.
+const GOOGLE_FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSeMW8v3SrQDQhL8ek82qgyfTRT85vnTv1QkIdsxrChm4p-3Tw/viewform';
 
 export default function SubmitResearchPage() {
   return (
@@ -14,16 +17,19 @@ export default function SubmitResearchPage() {
             Share your original research with The Invisible Algorithm community. Submissions are reviewed before publication.
           </p>
 
-          <div className="card overflow-hidden p-0">
-            <iframe
-              src={GOOGLE_FORM_EMBED_URL}
-              title="Research Submission Form"
-              className="w-full"
-              height={1400}
-              loading="lazy"
+          <div className="card text-center">
+            <p className="text-text-secondary mb-6">
+              Submissions are collected through our research submission form, including any supporting files.
+            </p>
+            <a
+              href={GOOGLE_FORM_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-primary"
             >
-              Loading form…
-            </iframe>
+              Open Submission Form
+              <ExternalLink size={18} />
+            </a>
           </div>
         </div>
       </section>

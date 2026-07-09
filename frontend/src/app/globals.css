@@ -21,6 +21,9 @@
   .section {
     @apply py-16 sm:py-24;
   }
+  .section-sm {
+    @apply py-10 sm:py-16;
+  }
 
   /* ── Cards ── */
   .card {
