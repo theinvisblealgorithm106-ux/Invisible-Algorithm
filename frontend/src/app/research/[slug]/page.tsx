@@ -112,13 +112,6 @@ export default async function ResearchDetailPage({ params }: Props) {
             <p className="text-text-secondary leading-relaxed">{paper.abstract}</p>
           </div>
 
-          {/* Content */}
-          {paper.content && (
-            <div className="prose-custom">
-              <div dangerouslySetInnerHTML={{ __html: paper.content }} />
-            </div>
-          )}
-
           {/* Authors */}
           {paper.authors?.length > 0 && (
             <div className="mt-12 pt-8 border-t border-border">

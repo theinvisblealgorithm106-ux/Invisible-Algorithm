@@ -166,7 +166,6 @@ export default function EventsPage() {
                           <div className="flex items-center gap-2">
                             <Users className="w-3.5 h-3.5 flex-shrink-0" />
                             {event.registeredCount} registered
-                            {event.capacity && ` / ${event.capacity} spots`}
                           </div>
                         )}
                       </div>

@@ -141,7 +141,7 @@ export default function ResearchPage() {
                     </h2>
 
                     <p className="text-sm text-text-secondary mb-4 line-clamp-3 flex-1">
-                      {truncate(paper.abstract, 180)}
+                      {truncate(paper.abstract || '', 180)}
                     </p>
 
                     <div className="flex flex-wrap gap-2 mb-4">
