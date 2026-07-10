@@ -3,25 +3,49 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Calendar, Clock, MapPin, Users, Globe, Video, ExternalLink, User } from 'lucide-react';
+import { ArrowLeft, Calendar, MapPin, Users, Globe, Monitor, Video, ExternalLink, User } from 'lucide-react';
 import { eventsApi } from '@/lib/api';
-import { client } from '@/sanity/client';
-import { eventDetailQuery } from '@/sanity/queries';
-import type { SanityEventDetail } from '@/sanity/types';
 import { formatDatetime, formatDate, getStatusColor, cn } from '@/lib/utils';
 import toast from 'react-hot-toast';
 
+interface Speaker {
+  name: string;
+  affiliation?: string;
+  bio?: string;
+}
+
+interface Event {
+  _id: string;
+  title: string;
+  slug: string;
+  description?: string;
+  startDate: string;
+  type: string;
+  format: string;
+  location?: string;
+  featured: boolean;
+  status: string;
+  requiresRegistration: boolean;
+  registeredCount: number;
+  capacity?: number | null;
+  timezone?: string;
+  virtualLink?: string | null;
+  speakers: Speaker[];
+  tags: string[];
+}
+
 export default function EventDetailPage() {
   const { slug } = useParams() as { slug: string };
-  const [event, setEvent] = useState<SanityEventDetail | null>(null);
+  const [event, setEvent] = useState<Event | null>(null);
   const [loading, setLoading] = useState(true);
   const [registering, setRegistering] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [regData, setRegData] = useState({ name: '', email: '' });
 
   useEffect(() => {
-    client.fetch(eventDetailQuery, { slug })
-      .then((data: SanityEventDetail | null) => setEvent(data))
+    fetch(`/api/events/${slug}`)
+      .then((r) => r.json())
+      .then((json) => { if (json.success) setEvent(json.data.event); })
       .catch(() => {})
       .finally(() => setLoading(false));
   }, [slug]);
@@ -67,6 +91,7 @@ export default function EventDetailPage() {
 
   const isFull = event.capacity ? event.registeredCount >= event.capacity : false;
   const isClosed = event.status === 'completed' || event.status === 'cancelled';
+  const FormatIcon = { virtual: Video, 'in-person': MapPin, hybrid: Globe }[event.format] || Monitor;
 
   return (
     <div className="pt-16">
@@ -130,7 +155,7 @@ export default function EventDetailPage() {
                   <div className="flex gap-3 text-text-secondary">
                     <Calendar className="w-4 h-4 text-text-muted flex-shrink-0 mt-0.5" />
                     <div>
-                      <p>{formatDate(event.startDate, 'EEEE, MMMM d, yyyy')}</p>
+                      <p>{formatDate(event.startDate)}</p>
                       <p className="text-text-tertiary text-xs mt-0.5">{formatDatetime(event.startDate)}</p>
                     </div>
                   </div>
@@ -159,10 +184,12 @@ export default function EventDetailPage() {
                     </div>
                   )}
 
-                  <div className="flex gap-3 text-text-secondary">
-                    <Globe className="w-4 h-4 text-text-muted flex-shrink-0 mt-0.5" />
-                    <span>{event.timezone}</span>
-                  </div>
+                  {event.timezone && (
+                    <div className="flex gap-3 text-text-secondary">
+                      <Globe className="w-4 h-4 text-text-muted flex-shrink-0 mt-0.5" />
+                      <span>{event.timezone}</span>
+                    </div>
+                  )}
                 </div>
 
                 {event.requiresRegistration && !isClosed && (

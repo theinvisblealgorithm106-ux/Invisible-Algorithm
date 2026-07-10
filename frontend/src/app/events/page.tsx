@@ -2,11 +2,24 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { Calendar, MapPin, Users, Filter, Search, Globe, Monitor, Video } from 'lucide-react';
-import { client } from '@/sanity/client';
-import { eventsQuery } from '@/sanity/queries';
-import type { SanityEvent } from '@/sanity/types';
-import { formatDate, formatDatetime, getStatusColor, EVENT_TYPES, cn } from '@/lib/utils';
+import { Calendar, MapPin, Users, Filter, Globe, Monitor, Video } from 'lucide-react';
+import { formatDate, getStatusColor, EVENT_TYPES, cn } from '@/lib/utils';
+
+interface Event {
+  _id: string;
+  title: string;
+  slug: string;
+  description?: string;
+  startDate: string;
+  type: string;
+  format: string;
+  location?: string;
+  featured: boolean;
+  status: string;
+  requiresRegistration: boolean;
+  registeredCount: number;
+  capacity?: number;
+}
 
 const formatIcons: Record<string, React.ElementType> = {
   'virtual': Video,
@@ -15,9 +28,8 @@ const formatIcons: Record<string, React.ElementType> = {
 };
 
 export default function EventsPage() {
-  const [events, setEvents] = useState<SanityEvent[]>([]);
+  const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
   const [type, setType] = useState('');
   const [format, setFormat] = useState('');
   const [page, setPage] = useState(1);
@@ -28,15 +40,18 @@ export default function EventsPage() {
   const fetchEvents = useCallback(async () => {
     setLoading(true);
     try {
-      const data: SanityEvent[] = await client.fetch(eventsQuery, {
-        type: type || '',
-        format: format || '',
-        upcoming: showUpcoming,
-      });
-      const totalItems = data.length;
-      setTotal(totalItems);
-      setTotalPages(Math.ceil(totalItems / 12) || 1);
-      setEvents(data.slice((page - 1) * 12, page * 12));
+      const params = new URLSearchParams({ page: String(page), limit: '12' });
+      if (type) params.set('type', type);
+      if (showUpcoming) params.set('status', 'upcoming');
+      const res = await fetch(`/api/events?${params}`);
+      const json = await res.json();
+      if (json.success) {
+        let data: Event[] = json.data.events;
+        if (format) data = data.filter((e) => e.format === format);
+        setTotal(json.data.pagination.total);
+        setTotalPages(json.data.pagination.pages || 1);
+        setEvents(data);
+      }
     } catch (err) {
       console.error(err);
     } finally {
@@ -155,7 +170,7 @@ export default function EventsPage() {
                       <div className="space-y-2 text-xs text-text-tertiary mb-5">
                         <div className="flex items-center gap-2">
                           <Calendar className="w-3.5 h-3.5 flex-shrink-0" />
-                          {formatDate(event.startDate, 'MMM d, yyyy')}
+                          {formatDate(event.startDate)}
                         </div>
                         <div className="flex items-center gap-2">
                           <FormatIcon className="w-3.5 h-3.5 flex-shrink-0" />

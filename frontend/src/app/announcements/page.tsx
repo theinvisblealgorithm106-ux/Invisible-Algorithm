@@ -2,10 +2,18 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { Bell, Pin } from 'lucide-react';
-import { client } from '@/sanity/client';
-import { announcementsQuery } from '@/sanity/queries';
-import type { SanityAnnouncement } from '@/sanity/types';
-import { formatDate, getStatusColor, cn } from '@/lib/utils';
+import { formatDate, cn } from '@/lib/utils';
+
+interface Announcement {
+  _id: string;
+  title: string;
+  content?: string;
+  category: string;
+  pinned: boolean;
+  featured: boolean;
+  publishedAt?: string;
+  createdAt: string;
+}
 
 const categoryColors: Record<string, string> = {
   general: 'bg-bg-elevated text-text-tertiary border-border',
@@ -17,7 +25,7 @@ const categoryColors: Record<string, string> = {
 };
 
 export default function AnnouncementsPage() {
-  const [announcements, setAnnouncements] = useState<SanityAnnouncement[]>([]);
+  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [loading, setLoading] = useState(true);
   const [category, setCategory] = useState('');
   const [page, setPage] = useState(1);
@@ -26,10 +34,14 @@ export default function AnnouncementsPage() {
   const fetchAnnouncements = useCallback(async () => {
     setLoading(true);
     try {
-      const data: SanityAnnouncement[] = await client.fetch(announcementsQuery, { category: category || '' });
-      const totalItems = data.length;
-      setTotalPages(Math.ceil(totalItems / 10) || 1);
-      setAnnouncements(data.slice((page - 1) * 10, page * 10));
+      const params = new URLSearchParams({ page: String(page), limit: '10' });
+      if (category) params.set('category', category);
+      const res = await fetch(`/api/announcements?${params}`);
+      const json = await res.json();
+      if (json.success) {
+        setAnnouncements(json.data.announcements);
+        setTotalPages(json.data.pagination.pages || 1);
+      }
     } catch {}
     setLoading(false);
   }, [page, category]);
@@ -86,7 +98,7 @@ export default function AnnouncementsPage() {
                       {ann.featured && <span className="badge text-xs bg-accent/10 text-accent border-accent/20">Featured</span>}
                     </div>
                     <span className="text-xs text-text-muted flex-shrink-0">
-                      {ann.publishedAt ? formatDate(ann.publishedAt) : ''}
+                      {ann.publishedAt ? formatDate(ann.publishedAt) : formatDate(ann.createdAt)}
                     </span>
                   </div>
                   <h2 className="font-semibold text-text-primary mb-2">{ann.title}</h2>

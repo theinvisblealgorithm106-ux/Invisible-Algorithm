@@ -7,7 +7,6 @@ const nextConfig = {
       { protocol: 'https', hostname: '**.cloudinary.com' },
       { protocol: 'https', hostname: 'avatars.githubusercontent.com' },
       { protocol: 'https', hostname: 'images.unsplash.com' },
-      { protocol: 'https', hostname: 'cdn.sanity.io' },
     ],
   },
   async headers() {
