@@ -29,7 +29,7 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>;
 
 const benefits = [
-  { icon: Users, text: 'Join a community of 200+ students across 40+ countries' },
+  { icon: Users, text: 'Join a community of 30+ students across 10+ schools' },
   { icon: BookOpen, text: 'Access research programs and publish original work' },
   { icon: Globe, text: 'Connect with an international network of peers and mentors' },
   { icon: Zap, text: 'Participate in exclusive workshops, seminars, and competitions' },

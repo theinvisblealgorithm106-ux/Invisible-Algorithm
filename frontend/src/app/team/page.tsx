@@ -12,14 +12,24 @@ const executiveTeam = [
     firstName: 'Ishita',
     lastName: 'Batra',
     role: 'Founder',
-    bio: "What began as curiosity slowly turned into Invisible Algorithm — a youth-led initiative dedicated to making technology and AI more accessible to students worldwide. Growing up between a computer scientist father and an economics-minded family, Ishita turned dinner-table debates about bugs and profit-loss into a global student community.",
+    avatar: '/team/ishita-batra.jpeg',
+    bio: "Growing up, Ishita was caught between two worlds — a computer-scientist father who ranted about bugs and algorithms at dinner, and a mother's side of the family that explained economics using vegetables. Enough questions later, that curiosity turned into The Invisible Algorithm, a youth-led initiative making technology and AI more accessible to students worldwide through workshops, research, and a global community of curious minds.",
+  },
+  {
+    id: 'shriyan',
+    firstName: 'Shriyan',
+    lastName: '',
+    role: 'Executive Team',
+    avatar: '/team/shriyan.png',
+    bio: "A builder at heart, Shriyan spends his time turning ideas into real projects — robots, games, websites, and personal builds like CogniFlow. Most of his time goes into Onshape, coding, robotics, and 3D printing, with a constant focus on learning how things work and making them better. Currently exploring Unity, AI, and game development.",
   },
   {
     id: 'tanya-mangla',
     firstName: 'Tanya',
     lastName: 'Mangla',
     role: 'Executive Team',
-    bio: "A Grade 10 student surrounded by finance professionals since childhood, Tanya was already decoding GST before fifth grade. Her curiosity about finance and AI eventually led her to The Invisible Algorithm, where she connects both worlds for students everywhere.",
+    avatar: '/team/tanya-mangla.jpeg',
+    bio: "A Grade 10 student surrounded by finance professionals since childhood, Tanya knew what GST meant before fifth grade. When the family ran out of patience for her questions, she turned to Google — and later ChatGPT and Gemini — to make sense of it all. That curiosity about both finance and AI is exactly why she connects with The Invisible Algorithm's mission.",
   },
   {
     id: 'aarvi-malik',
@@ -27,6 +37,7 @@ const executiveTeam = [
     lastName: 'Malik',
     role: 'Executive Head of Social Media and Outreach',
     school: 'Bal Bharati Public School, Pitampura',
+    avatar: '/team/aarvi-malik.jpeg',
     bio: "A Grade 10 student and public speaker since age 3, Aarvi won Best Speaker from India's Ministry of Education and earned an honourable mention at The GOI Peace Foundation Japan International Essay Competition. Through TIA's workshops, she connects brilliant learners globally.",
   },
   {
@@ -35,7 +46,8 @@ const executiveTeam = [
     lastName: '',
     role: 'Executive Director of Creative Design',
     school: 'Harold M. Braithwaite (IB Diploma, Canada)',
-    bio: "A passionate artist and IB student in Canada, Saanvi discovered her love for art in Grade 5 and hasn't stopped creating since. She believes art is about expressing who you are — from colours to fashion to design — and leads TIA's creative vision to inspire imagination and innovation.",
+    avatar: '/team/saanvi.jpeg',
+    bio: "Art meant nothing to Saanvi until a Grade 5 art contest, when creating her first piece just clicked — a way to express herself without words. Since then she's explored countless styles and techniques, earning awards along the way and discovering that art, especially fashion, is one of the most powerful ways to show personality and individuality. As Executive Director of Creative Design, she champions imagination and proves art has a heartbeat as long as people keep dreaming and creating.",
   },
 ];
 
@@ -130,11 +142,19 @@ export default function TeamPage() {
             {executiveTeam.map((member) => (
               <div key={member.id} className="card-hover text-center group">
                 <div className="relative mx-auto w-16 h-16 mb-4">
-                  <div className="w-full h-full rounded-full bg-primary/10 border-2 border-border group-hover:border-primary/50 transition-colors flex items-center justify-center">
-                    <span className="text-primary-light font-semibold text-lg">
-                      {getInitials(member.firstName, member.lastName || member.firstName)}
-                    </span>
-                  </div>
+                  {member.avatar ? (
+                    <img
+                      src={member.avatar}
+                      alt={`${member.firstName} ${member.lastName}`}
+                      className="w-full h-full rounded-full object-cover border-2 border-border group-hover:border-primary/50 transition-colors"
+                    />
+                  ) : (
+                    <div className="w-full h-full rounded-full bg-primary/10 border-2 border-border group-hover:border-primary/50 transition-colors flex items-center justify-center">
+                      <span className="text-primary-light font-semibold text-lg">
+                        {getInitials(member.firstName, member.lastName || member.firstName)}
+                      </span>
+                    </div>
+                  )}
                 </div>
                 <h3 className="font-semibold text-text-primary text-sm mb-1">
                   {member.firstName}{member.lastName ? ` ${member.lastName}` : ''}

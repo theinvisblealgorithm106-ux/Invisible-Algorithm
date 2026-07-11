@@ -7,10 +7,8 @@ export const metadata: Metadata = {
 };
 
 const stats = [
-  { value: '40+', label: 'Countries', color: 'bg-primary/10 text-primary border-primary/20' },
-  { value: '200+', label: 'Members', color: 'bg-accent-green/10 text-accent-green border-accent-green/20' },
-  { value: '50+', label: 'Papers', color: 'bg-accent/10 text-accent border-accent/20' },
-  { value: '100+', label: 'Events', color: 'bg-accent-yellow/10 text-accent-yellow border-accent-yellow/20' },
+  { value: '10+', label: 'Schools', color: 'bg-primary/10 text-primary border-primary/20' },
+  { value: '30+', label: 'Members', color: 'bg-accent-green/10 text-accent-green border-accent-green/20' },
 ];
 
 const pillars = [
@@ -44,7 +42,7 @@ const pillars = [
   {
     icon: Globe,
     title: 'Global Collaboration',
-    description: 'Connect with students, schools, and educators across 40+ countries through our international network.',
+    description: 'Connect with students and educators across 10+ partner schools through our international network.',
     gradient: 'from-accent-green/15 to-accent-cyan/10',
     border: 'border-accent-green/20',
     iconBg: 'bg-accent-green text-white',
@@ -114,7 +112,7 @@ export default function HomePage() {
           </div>
 
           {/* Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-2xl mx-auto">
+          <div className="grid grid-cols-2 gap-4 max-w-sm mx-auto">
             {stats.map((stat) => (
               <div key={stat.label} className={`card-glass border text-center py-5 ${stat.color}`}>
                 <div className="text-3xl font-extrabold mb-1">{stat.value}</div>

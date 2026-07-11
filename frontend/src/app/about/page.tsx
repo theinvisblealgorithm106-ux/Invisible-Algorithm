@@ -110,7 +110,7 @@ export default function AboutPage() {
                 We exist to make sure those students can come from anywhere.
               </p>
               <p>
-                Since our founding, we've grown into a network spanning 40+ countries, with members publishing original research, organizing international workshops, and building real skills in AI, machine learning, data science, and finance.
+                Since our founding, we've grown into a network spanning 10+ schools, with members publishing original research, organizing international workshops, and building real skills in AI, machine learning, data science, and finance.
               </p>
               <p>
                 Our work is done entirely by students, for students. Every event, every publication, every partnership is driven by young people who believe in the power of education and collaboration.
