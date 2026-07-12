@@ -54,7 +54,7 @@ const features = [
   { icon: Users, text: 'Student-led research teams' },
   { icon: Award, text: 'Published academic work' },
   { icon: Zap, text: 'Live workshops & seminars' },
-  { icon: Globe, text: 'International partnerships' },
+  { icon: Globe, text: 'Interschool partnerships' },
 ];
 
 export default function HomePage() {
@@ -224,21 +224,32 @@ export default function HomePage() {
 
             <div className="space-y-4">
               {[
-                { title: 'Student Research Program', desc: 'Conduct and publish original research with mentorship from experienced researchers.', color: 'border-l-4 border-primary', tag: 'Research', tagColor: 'bg-primary/10 text-primary border-primary/20' },
-                { title: 'Global Workshop Series', desc: 'Monthly live workshops covering AI, ML, finance, and CS fundamentals.', color: 'border-l-4 border-accent-green', tag: 'Events', tagColor: 'bg-accent-green/10 text-accent-green border-accent-green/20' },
-                { title: 'School Partnerships', desc: 'Partner your school or university with our international network.', color: 'border-l-4 border-accent-yellow', tag: 'Partnerships', tagColor: 'bg-accent-yellow/10 text-accent-yellow border-accent-yellow/30' },
-              ].map((item) => (
-                <div key={item.title} className={`card-hover flex gap-4 ${item.color}`}>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className={`badge ${item.tagColor}`}>{item.tag}</span>
+                { title: 'Student Research Program', desc: 'Conduct and publish original research with mentorship from experienced researchers.', color: 'border-l-4 border-primary', tag: 'Research', tagColor: 'bg-primary/10 text-primary border-primary/20', href: '/research' },
+                { title: 'Global Workshop Series', desc: 'Monthly live workshops covering AI, ML, finance, and CS fundamentals.', color: 'border-l-4 border-accent-green', tag: 'Events', tagColor: 'bg-accent-green/10 text-accent-green border-accent-green/20', href: '/events' },
+                { title: 'School Partnerships', desc: 'Partner your school or university with our international network.', color: 'border-l-4 border-accent-yellow', tag: 'Partnerships', tagColor: 'bg-accent-yellow/10 text-accent-yellow border-accent-yellow/30', href: null },
+              ].map((item) => {
+                const content = (
+                  <>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className={`badge ${item.tagColor}`}>{item.tag}</span>
+                      </div>
+                      <h3 className="font-semibold text-text-primary mb-1.5">{item.title}</h3>
+                      <p className="text-sm text-text-secondary">{item.desc}</p>
                     </div>
-                    <h3 className="font-semibold text-text-primary mb-1.5">{item.title}</h3>
-                    <p className="text-sm text-text-secondary">{item.desc}</p>
+                    <ChevronRight className="w-4 h-4 text-text-tertiary flex-shrink-0 mt-1" />
+                  </>
+                );
+                return item.href ? (
+                  <Link key={item.title} href={item.href} className={`card-hover flex gap-4 ${item.color}`}>
+                    {content}
+                  </Link>
+                ) : (
+                  <div key={item.title} className={`card-hover flex gap-4 ${item.color}`}>
+                    {content}
                   </div>
-                  <ChevronRight className="w-4 h-4 text-text-tertiary flex-shrink-0 mt-1" />
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </div>

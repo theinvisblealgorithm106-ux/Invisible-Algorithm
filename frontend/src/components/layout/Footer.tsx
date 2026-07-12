@@ -1,5 +1,6 @@
 import Link from 'next/link';
-import { Github, Linkedin, Twitter, Mail, ArrowUpRight } from 'lucide-react';
+import Image from 'next/image';
+import { Linkedin, Instagram, Mail, ArrowUpRight } from 'lucide-react';
 
 const footerLinks = {
   Organization: [
@@ -28,9 +29,7 @@ export default function Footer() {
           {/* Brand */}
           <div className="lg:col-span-2">
             <Link href="/" className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center flex-shrink-0">
-                <span className="text-white text-xs font-bold">IA</span>
-              </div>
+              <Image src="/logo.png" alt="The Invisible Algorithm" width={56} height={40} className="h-10 w-auto flex-shrink-0" />
               <span className="font-semibold text-sm">
                 <span className="text-text-primary">The Invisible</span>
                 <span className="text-primary"> Algorithm</span>
@@ -50,25 +49,16 @@ export default function Footer() {
                 <Linkedin className="w-4 h-4" />
               </a>
               <a
-                href="#"
+                href="https://www.instagram.com/theinvisiblealgorithm/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-9 h-9 rounded-lg bg-bg-elevated border border-border flex items-center justify-center text-text-tertiary hover:text-text-primary hover:border-border-hover transition-all"
-                aria-label="Twitter/X"
+                aria-label="Instagram"
               >
-                <Twitter className="w-4 h-4" />
+                <Instagram className="w-4 h-4" />
               </a>
               <a
-                href="#"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-9 h-9 rounded-lg bg-bg-elevated border border-border flex items-center justify-center text-text-tertiary hover:text-text-primary hover:border-border-hover transition-all"
-                aria-label="GitHub"
-              >
-                <Github className="w-4 h-4" />
-              </a>
-              <a
-                href="mailto:contact@theinvisiblealgorithm.org"
+                href="mailto:theinvisiblealgorithm106@gmail.com"
                 className="w-9 h-9 rounded-lg bg-bg-elevated border border-border flex items-center justify-center text-text-tertiary hover:text-text-primary hover:border-border-hover transition-all"
                 aria-label="Email"
               >

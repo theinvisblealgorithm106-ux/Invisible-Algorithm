@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Mail, MessageSquare, Globe, Linkedin, Twitter, Check } from 'lucide-react';
+import { Mail, MessageSquare, Globe, Linkedin, Instagram, Check } from 'lucide-react';
 import { contactApi } from '@/lib/api';
 import toast from 'react-hot-toast';
 
@@ -19,10 +19,10 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>;
 
 const contactInfo = [
-  { icon: Mail, label: 'Email', value: 'contact@theinvisiblealgorithm.org', href: 'mailto:contact@theinvisiblealgorithm.org' },
+  { icon: Mail, label: 'Email', value: 'theinvisiblealgorithm106@gmail.com', href: 'mailto:theinvisiblealgorithm106@gmail.com' },
   { icon: Globe, label: 'Website', value: 'theinvisiblealgorithm.org', href: '#' },
   { icon: Linkedin, label: 'LinkedIn', value: 'The Invisible Algorithm', href: '#' },
-  { icon: Twitter, label: 'Twitter/X', value: '@InvisibleAlgo', href: '#' },
+  { icon: Instagram, label: 'Instagram', value: '@theinvisiblealgorithm', href: 'https://www.instagram.com/theinvisiblealgorithm/' },
 ];
 
 const categories = [

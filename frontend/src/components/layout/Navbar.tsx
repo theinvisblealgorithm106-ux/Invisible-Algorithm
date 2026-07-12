@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { Menu, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -10,6 +11,7 @@ const navLinks = [
   { href: '/', label: 'Home' },
   { href: '/research', label: 'Research' },
   { href: '/events', label: 'Events' },
+  { href: '/announcements', label: 'Announcements' },
   { href: '/team', label: 'Team' },
   { href: '/about', label: 'About' },
 ];
@@ -42,9 +44,7 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 group">
-            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center flex-shrink-0 group-hover:bg-primary-hover transition-colors">
-              <span className="text-white text-xs font-bold">IA</span>
-            </div>
+            <Image src="/logo.png" alt="The Invisible Algorithm" width={56} height={40} className="h-10 w-auto flex-shrink-0" priority />
             <span className="font-semibold text-sm tracking-tight hidden sm:block">
               <span className="text-text-primary">The Invisible</span>
               <span className="text-primary"> Algorithm</span>

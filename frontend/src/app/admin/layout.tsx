@@ -28,7 +28,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       return;
     }
     if (!hasRole(['admin', 'super_admin'])) {
-      router.push('/dashboard');
+      router.push('/');
     }
   }, [isAuthenticated, hasRole, router]);
 
@@ -64,8 +64,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             })}
           </nav>
           <div className="mt-auto pt-4 border-t border-border mt-8">
-            <Link href="/dashboard" className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm text-text-tertiary hover:text-text-secondary hover:bg-bg-elevated transition-colors">
-              <Home className="w-4 h-4" /> Back to Dashboard
+            <Link href="/" className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm text-text-tertiary hover:text-text-secondary hover:bg-bg-elevated transition-colors">
+              <Home className="w-4 h-4" /> Back to Site
             </Link>
           </div>
         </div>
