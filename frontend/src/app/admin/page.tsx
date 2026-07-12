@@ -5,12 +5,15 @@ import { Users, BookOpen, Calendar, FileText, MessageSquare, TrendingUp } from '
 import { usersApi, researchApi, eventsApi, applicationsApi, contactApi } from '@/lib/api';
 import { formatDate } from '@/lib/utils';
 
+interface StatusCount { _id: string; count: number }
 interface Stats {
-  users: { totalUsers: number; roleStats: Array<{ _id: string; count: number }> };
-  research: { total: number; statusStats: Array<{ _id: string; count: number }> };
-  events: { total: number; statusStats: Array<{ _id: string; count: number }> };
-  applications: { total: number; stats: Array<{ _id: string; count: number }> };
+  users: { total: number; byRole: StatusCount[] };
+  research: { byStatus: StatusCount[]; totalViews: number };
+  events: { byStatus: StatusCount[] };
+  applications: { byStatus: StatusCount[] };
 }
+
+const sumCounts = (rows?: StatusCount[]) => rows?.reduce((sum, r) => sum + r.count, 0) ?? 0;
 
 export default function AdminOverviewPage() {
   const [stats, setStats] = useState<Partial<Stats>>({});
@@ -41,28 +44,28 @@ export default function AdminOverviewPage() {
     {
       icon: Users,
       label: 'Total Users',
-      value: stats.users?.totalUsers ?? '—',
+      value: stats.users?.total ?? '—',
       color: 'text-primary-light',
       bg: 'bg-primary/10',
     },
     {
       icon: FileText,
       label: 'Applications',
-      value: stats.applications?.total ?? '—',
+      value: sumCounts(stats.applications?.byStatus),
       color: 'text-warning',
       bg: 'bg-warning/10',
     },
     {
       icon: BookOpen,
       label: 'Research Papers',
-      value: stats.research?.total ?? '—',
+      value: sumCounts(stats.research?.byStatus),
       color: 'text-purple-400',
       bg: 'bg-purple-500/10',
     },
     {
       icon: Calendar,
       label: 'Events',
-      value: stats.events?.total ?? '—',
+      value: sumCounts(stats.events?.byStatus),
       color: 'text-accent',
       bg: 'bg-accent/10',
     },
@@ -105,14 +108,14 @@ export default function AdminOverviewPage() {
             </div>
           ) : (
             <div className="space-y-3">
-              {stats.users?.roleStats.map((r) => (
+              {stats.users?.byRole.map((r) => (
                 <div key={r._id} className="flex items-center justify-between">
                   <span className="text-sm text-text-secondary capitalize">{r._id.replace('_', ' ')}</span>
                   <div className="flex items-center gap-3">
                     <div className="w-24 h-1.5 bg-bg-elevated rounded-full overflow-hidden">
                       <div
                         className="h-full bg-primary rounded-full"
-                        style={{ width: `${Math.min(100, (r.count / (stats.users?.totalUsers || 1)) * 100)}%` }}
+                        style={{ width: `${Math.min(100, (r.count / (stats.users?.total || 1)) * 100)}%` }}
                       />
                     </div>
                     <span className="text-sm font-medium text-text-primary w-6 text-right">{r.count}</span>
@@ -134,14 +137,14 @@ export default function AdminOverviewPage() {
             </div>
           ) : (
             <div className="space-y-3">
-              {stats.applications?.stats.map((s) => (
+              {stats.applications?.byStatus.map((s) => (
                 <div key={s._id} className="flex items-center justify-between">
                   <span className="text-sm text-text-secondary capitalize">{s._id}</span>
                   <div className="flex items-center gap-3">
                     <div className="w-24 h-1.5 bg-bg-elevated rounded-full overflow-hidden">
                       <div
                         className="h-full bg-warning rounded-full"
-                        style={{ width: `${Math.min(100, (s.count / (stats.applications?.total || 1)) * 100)}%` }}
+                        style={{ width: `${Math.min(100, (s.count / (sumCounts(stats.applications?.byStatus) || 1)) * 100)}%` }}
                       />
                     </div>
                     <span className="text-sm font-medium text-text-primary w-6 text-right">{s.count}</span>
