@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Users, BookOpen, Calendar, FileText, MessageSquare, TrendingUp } from 'lucide-react';
 import { usersApi, researchApi, eventsApi, applicationsApi, contactApi } from '@/lib/api';
 import { formatDate } from '@/lib/utils';
+import toast from 'react-hot-toast';
 
 interface StatusCount { _id: string; count: number }
 interface Stats {
@@ -34,7 +35,9 @@ export default function AdminOverviewPage() {
           events: eRes.data.data,
           applications: aRes.data.data,
         });
-      } catch {}
+      } catch {
+        toast.error('Failed to load stats — try logging out and back in');
+      }
       setLoading(false);
     };
     load();

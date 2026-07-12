@@ -108,7 +108,7 @@ export default function ContactPage() {
                     <Check className="w-7 h-7 text-success" />
                   </div>
                   <h2 className="heading-md mb-3">Message Sent!</h2>
-                  <p className="text-text-secondary mb-6">Thank you for reaching out. We'll respond within 2-3 business days.</p>
+                  <p className="text-text-secondary mb-6">Thank you for reaching out.</p>
                   <button onClick={() => setSubmitted(false)} className="btn-secondary">Send Another</button>
                 </div>
               ) : (

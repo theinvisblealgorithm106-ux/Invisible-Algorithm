@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { Shield, Users, BookOpen, Calendar, FileText, Bell, MessageSquare, BarChart3, Home } from 'lucide-react';
+import { Shield, Users, BookOpen, Calendar, FileText, Bell, MessageSquare, BarChart3, Home, LogOut } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { cn } from '@/lib/utils';
 
@@ -18,9 +18,14 @@ const adminNav = [
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated, hasRole } = useAuthStore();
+  const { isAuthenticated, hasRole, logout } = useAuthStore();
   const router = useRouter();
   const pathname = usePathname();
+
+  const handleLogout = () => {
+    logout();
+    router.push('/auth/login');
+  };
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -63,10 +68,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               );
             })}
           </nav>
-          <div className="mt-auto pt-4 border-t border-border mt-8">
+          <div className="mt-auto pt-4 border-t border-border mt-8 space-y-1">
             <Link href="/" className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm text-text-tertiary hover:text-text-secondary hover:bg-bg-elevated transition-colors">
               <Home className="w-4 h-4" /> Back to Site
             </Link>
+            <button onClick={handleLogout} className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm text-text-tertiary hover:text-text-secondary hover:bg-bg-elevated transition-colors">
+              <LogOut className="w-4 h-4" /> Log Out
+            </button>
           </div>
         </div>
       </aside>

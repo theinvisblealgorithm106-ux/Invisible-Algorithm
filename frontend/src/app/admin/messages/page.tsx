@@ -35,7 +35,9 @@ export default function AdminMessagesPage() {
       setMessages(res.data.data.messages);
       setTotalPages(res.data.data.pagination.pages);
       setTotal(res.data.data.pagination.total);
-    } catch {}
+    } catch {
+      toast.error('Failed to load messages — try logging out and back in');
+    }
     setLoading(false);
   }, [page, status]);
 
