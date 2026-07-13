@@ -117,7 +117,7 @@ export default function TeamMemberPage() {
                 )}
 
                 {person.bio && (
-                  <p className="text-text-secondary leading-relaxed mt-5">{person.bio}</p>
+                  <p className="text-text-secondary leading-relaxed mt-5 whitespace-pre-line">{person.bio}</p>
                 )}
 
                 {!staticMember && (person as User).socialLinks && Object.values((person as User).socialLinks!).some(Boolean) && (
