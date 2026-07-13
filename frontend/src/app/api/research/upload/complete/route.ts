@@ -3,6 +3,7 @@ import { connectDB } from '@/lib/mongodb';
 import { Research } from '@/models/Research';
 import { requireAdminTabWrite } from '@/lib/auth-helpers';
 import { findDriveFileByName, makeFilePubliclyViewable } from '@/lib/googleDrive';
+import { PDF_SUBMISSION_ABSTRACT_PLACEHOLDER, PDF_SUBMISSION_CONTENT_PLACEHOLDER } from '@/lib/utils';
 
 // Called after the browser attempts to PUT the file directly to Drive. We
 // can't trust a driveFileId reported by the client — Google's resumable
@@ -29,8 +30,8 @@ export async function POST(req: Request) {
 
     const research = new Research({
       title: title.trim(),
-      abstract: 'Submitted as a PDF — pending review.',
-      content: 'Full paper submitted as a PDF attachment.',
+      abstract: PDF_SUBMISSION_ABSTRACT_PLACEHOLDER,
+      content: PDF_SUBMISSION_CONTENT_PLACEHOLDER,
       category: 'other',
       authors: [{ name: name.trim() }],
       status: 'submitted',

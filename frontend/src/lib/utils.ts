@@ -6,6 +6,13 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+// Placeholder abstract/content stamped on quick PDF-only submissions
+// (title + name + file, no abstract collected) — the Research schema
+// requires non-empty fields, but public pages should hide these rather
+// than display filler text once a paper is approved.
+export const PDF_SUBMISSION_ABSTRACT_PLACEHOLDER = 'Submitted as a PDF — pending review.';
+export const PDF_SUBMISSION_CONTENT_PLACEHOLDER = 'Full paper submitted as a PDF attachment.';
+
 export function formatDate(date: string | Date, formatStr = 'MMM d, yyyy'): string {
   const d = new Date(date);
   if (!isValid(d)) return 'Invalid date';

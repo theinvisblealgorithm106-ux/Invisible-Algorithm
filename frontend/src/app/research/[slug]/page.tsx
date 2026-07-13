@@ -1,8 +1,9 @@
 import type { Metadata } from 'next';
+import { cache } from 'react';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Calendar, Eye, Download, ExternalLink, User } from 'lucide-react';
-import { formatDate, formatCategory } from '@/lib/utils';
+import { ArrowLeft, Calendar, Download, ExternalLink, User } from 'lucide-react';
+import { formatDate, formatCategory, PDF_SUBMISSION_ABSTRACT_PLACEHOLDER } from '@/lib/utils';
 import { connectDB } from '@/lib/mongodb';
 import { Research } from '@/models/Research';
 import type { Research as ResearchType } from '@/types';
@@ -11,7 +12,10 @@ interface Props {
   params: Promise<{ slug: string }>;
 }
 
-async function getResearch(slug: string): Promise<ResearchType | null> {
+// Wrapped in React's cache() so the view-increment side effect only runs
+// once per request — generateMetadata and the page component both call
+// this, and without dedup it was counting two views per real page visit.
+const getResearch = cache(async (slug: string): Promise<ResearchType | null> => {
   try {
     await connectDB();
     const paper = await Research.findOne({ slug, status: 'published' });
@@ -21,15 +25,18 @@ async function getResearch(slug: string): Promise<ResearchType | null> {
   } catch {
     return null;
   }
-}
+});
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const paper = await getResearch(slug);
   if (!paper) return { title: 'Not Found' };
+  const description = paper.abstract && paper.abstract !== PDF_SUBMISSION_ABSTRACT_PLACEHOLDER
+    ? paper.abstract.slice(0, 160)
+    : undefined;
   return {
     title: paper.title,
-    description: paper.abstract?.slice(0, 160),
+    description,
   };
 }
 
@@ -71,10 +78,6 @@ export default async function ResearchDetailPage({ params }: Props) {
                 <Calendar className="w-4 h-4" />
                 {paper.publishedAt ? formatDate(paper.publishedAt) : formatDate(paper.createdAt)}
               </div>
-              <div className="flex items-center gap-1.5">
-                <Eye className="w-4 h-4" />
-                {paper.views} views
-              </div>
               {paper.authors?.length > 0 && (
                 <div className="flex items-center gap-1.5">
                   <User className="w-4 h-4" />
@@ -110,10 +113,12 @@ export default async function ResearchDetailPage({ params }: Props) {
           </div>
 
           {/* Abstract */}
-          <div className="card mb-8">
-            <h2 className="font-semibold text-text-primary mb-3 text-sm uppercase tracking-wider text-text-muted">Abstract</h2>
-            <p className="text-text-secondary leading-relaxed">{paper.abstract}</p>
-          </div>
+          {paper.abstract && paper.abstract !== PDF_SUBMISSION_ABSTRACT_PLACEHOLDER && (
+            <div className="card mb-8">
+              <h2 className="font-semibold text-text-primary mb-3 text-sm uppercase tracking-wider text-text-muted">Abstract</h2>
+              <p className="text-text-secondary leading-relaxed">{paper.abstract}</p>
+            </div>
+          )}
 
           {/* Authors */}
           {paper.authors?.length > 0 && (

@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { Search, Filter, ArrowRight, BookOpen, Eye, Calendar } from 'lucide-react';
 import { Research } from '@/types';
-import { formatDate, formatCategory, getStatusColor, RESEARCH_CATEGORIES, truncate } from '@/lib/utils';
+import { formatDate, formatCategory, getStatusColor, RESEARCH_CATEGORIES, truncate, PDF_SUBMISSION_ABSTRACT_PLACEHOLDER } from '@/lib/utils';
 import { cn } from '@/lib/utils';
 
 export default function ResearchPage() {
@@ -137,7 +137,7 @@ export default function ResearchPage() {
                     </h2>
 
                     <p className="text-sm text-text-secondary mb-4 line-clamp-3 flex-1">
-                      {truncate(paper.abstract || '', 180)}
+                      {paper.abstract === PDF_SUBMISSION_ABSTRACT_PLACEHOLDER ? '' : truncate(paper.abstract || '', 180)}
                     </p>
 
                     <div className="flex flex-wrap gap-2 mb-4">
