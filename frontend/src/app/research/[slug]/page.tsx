@@ -3,18 +3,21 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Calendar, Eye, Download, ExternalLink, User } from 'lucide-react';
 import { formatDate, formatCategory } from '@/lib/utils';
-import { client } from '@/sanity/client';
-import { researchDetailQuery } from '@/sanity/queries';
-import type { SanityResearchDetail } from '@/sanity/types';
+import { connectDB } from '@/lib/mongodb';
+import { Research } from '@/models/Research';
+import type { Research as ResearchType } from '@/types';
 
 interface Props {
   params: Promise<{ slug: string }>;
 }
 
-async function getResearch(slug: string): Promise<SanityResearchDetail | null> {
+async function getResearch(slug: string): Promise<ResearchType | null> {
   try {
-    const data = await client.fetch(researchDetailQuery, { slug });
-    return data || null;
+    await connectDB();
+    const paper = await Research.findOne({ slug, status: 'published' });
+    if (!paper) return null;
+    await Research.findByIdAndUpdate(paper._id, { $inc: { views: 1 } });
+    return JSON.parse(JSON.stringify(paper));
   } catch {
     return null;
   }

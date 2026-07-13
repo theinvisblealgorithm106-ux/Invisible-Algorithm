@@ -3,14 +3,12 @@
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { Search, Filter, ArrowRight, BookOpen, Eye, Calendar } from 'lucide-react';
-import { client } from '@/sanity/client';
-import { researchQuery } from '@/sanity/queries';
-import type { SanityResearch } from '@/sanity/types';
+import { Research } from '@/types';
 import { formatDate, formatCategory, getStatusColor, RESEARCH_CATEGORIES, truncate } from '@/lib/utils';
 import { cn } from '@/lib/utils';
 
 export default function ResearchPage() {
-  const [research, setResearch] = useState<SanityResearch[]>([]);
+  const [research, setResearch] = useState<Research[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('');
@@ -21,18 +19,16 @@ export default function ResearchPage() {
   const fetchResearch = useCallback(async () => {
     setLoading(true);
     try {
-      const data: SanityResearch[] = await client.fetch(researchQuery, { category: category || '' });
-      const filtered = search
-        ? data.filter(p =>
-            p.title.toLowerCase().includes(search.toLowerCase()) ||
-            (p.abstract || '').toLowerCase().includes(search.toLowerCase()) ||
-            (p.authorName || '').toLowerCase().includes(search.toLowerCase())
-          )
-        : data;
-      const totalItems = filtered.length;
-      setTotal(totalItems);
-      setTotalPages(Math.ceil(totalItems / 12) || 1);
-      setResearch(filtered.slice((page - 1) * 12, page * 12));
+      const params = new URLSearchParams({ page: String(page), limit: '12' });
+      if (category) params.set('category', category);
+      if (search) params.set('search', search);
+      const res = await fetch(`/api/research?${params}`);
+      const json = await res.json();
+      if (json.success) {
+        setResearch(json.data.research);
+        setTotal(json.data.pagination.total);
+        setTotalPages(json.data.pagination.pages || 1);
+      }
     } catch (err) {
       console.error(err);
     } finally {
