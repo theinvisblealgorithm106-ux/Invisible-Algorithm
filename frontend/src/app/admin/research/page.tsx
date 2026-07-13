@@ -56,8 +56,16 @@ export default function AdminResearchPage() {
   // Uploads straight from the browser to Google Drive (bypassing our own
   // server for the file bytes, since Vercel caps request/response bodies at
   // 4.5MB) using the resumable session started by /research/upload/session.
-  const putFileToDrive = (uploadUrl: string, accessToken: string, file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
+  //
+  // Google's resumable upload PUT response is missing Access-Control-Allow-
+  // Origin, so a real browser can't read the response here at all — not the
+  // status, not the body — even when the upload actually completed
+  // successfully server-side (confirmed by testing). So this always
+  // resolves once the request finishes either way; researchApi.completeUpload
+  // is what actually confirms success, by having the server look the file
+  // up directly with Google (no CORS involved server-to-server).
+  const putFileToDrive = (uploadUrl: string, accessToken: string, file: File): Promise<void> => {
+    return new Promise((resolve) => {
       const xhr = new XMLHttpRequest();
       xhr.open('PUT', uploadUrl, true);
       xhr.setRequestHeader('Authorization', `Bearer ${accessToken}`);
@@ -65,18 +73,8 @@ export default function AdminResearchPage() {
       xhr.upload.onprogress = (e) => {
         if (e.lengthComputable) setSubmitProgress(Math.round((e.loaded / e.total) * 100));
       };
-      xhr.onload = () => {
-        if (xhr.status >= 200 && xhr.status < 300) {
-          try {
-            resolve(JSON.parse(xhr.responseText).id);
-          } catch {
-            reject(new Error('Drive returned an unexpected response'));
-          }
-        } else {
-          reject(new Error(`Drive upload failed (${xhr.status})`));
-        }
-      };
-      xhr.onerror = () => reject(new Error('Network error during upload'));
+      xhr.onload = () => resolve();
+      xhr.onerror = () => resolve();
       xhr.send(file);
     });
   };
@@ -98,18 +96,18 @@ export default function AdminResearchPage() {
     setSubmitProgress(0);
     try {
       const sessionRes = await researchApi.initUpload({
-        filename: submitFile.name,
         fileSize: submitFile.size,
         mimeType: submitFile.type,
       });
-      const { uploadUrl, accessToken } = sessionRes.data.data;
+      const { uploadUrl, accessToken, driveFilename } = sessionRes.data.data;
 
-      const driveFileId = await putFileToDrive(uploadUrl, accessToken, submitFile);
+      await putFileToDrive(uploadUrl, accessToken, submitFile);
+      setSubmitProgress(100);
 
       await researchApi.completeUpload({
         title: submitTitle.trim(),
         name: submitName.trim(),
-        driveFileId,
+        driveFilename,
       });
 
       toast.success('Paper submitted for review');

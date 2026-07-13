@@ -9,17 +9,17 @@ const MAX_PDF_BYTES = 64 * 1024 * 1024; // 64MB
 export async function POST(req: Request) {
   try {
     requireAdminTabWrite(req, 'research');
-    const { filename, fileSize, mimeType } = await req.json();
+    const { fileSize, mimeType } = await req.json();
 
-    if (!filename || !fileSize || mimeType !== 'application/pdf') {
-      return NextResponse.json({ success: false, message: 'filename, fileSize, and a PDF mimeType are required' }, { status: 400 });
+    if (!fileSize || mimeType !== 'application/pdf') {
+      return NextResponse.json({ success: false, message: 'fileSize and a PDF mimeType are required' }, { status: 400 });
     }
     if (fileSize > MAX_PDF_BYTES) {
       return NextResponse.json({ success: false, message: 'PDF must be under 64MB' }, { status: 400 });
     }
 
-    const { uploadUrl, accessToken } = await createResumableUploadSession(filename, fileSize, mimeType);
-    return NextResponse.json({ success: true, data: { uploadUrl, accessToken } });
+    const { uploadUrl, accessToken, driveFilename } = await createResumableUploadSession(fileSize, mimeType);
+    return NextResponse.json({ success: true, data: { uploadUrl, accessToken, driveFilename } });
   } catch (err) {
     if (err instanceof NextResponse) return err;
     console.error(err);

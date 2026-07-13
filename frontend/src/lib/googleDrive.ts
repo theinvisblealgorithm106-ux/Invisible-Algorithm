@@ -1,4 +1,5 @@
 import { google } from 'googleapis';
+import { randomUUID } from 'crypto';
 
 const FOLDER_ID = process.env.GOOGLE_DRIVE_FOLDER_ID!;
 
@@ -28,14 +29,24 @@ function getDriveClient() {
 // the file bytes directly to Google — the file never passes through our own
 // server, which matters because Vercel serverless functions hard-cap
 // request bodies at 4.5MB regardless of how the route handler reads them.
+//
+// The file is uploaded under a server-generated random name rather than the
+// user's chosen filename: Google's resumable PUT response is missing
+// Access-Control-Allow-Origin (confirmed by testing — the preflight OPTIONS
+// passes, but the actual PUT response doesn't carry the header), so a real
+// browser can't read the response body/status at all despite the upload
+// itself completing successfully server-side. Since the client can't learn
+// the resulting file id, the caller instead looks the file up by this exact
+// (unique) name afterward via findDriveFileByName.
 export async function createResumableUploadSession(
-  filename: string,
   fileSize: number,
   mimeType: string
-): Promise<{ uploadUrl: string; accessToken: string }> {
+): Promise<{ uploadUrl: string; accessToken: string; driveFilename: string }> {
   const auth = getAuthClient();
   const { token: accessToken } = await auth.getAccessToken();
   if (!accessToken) throw new Error('Failed to obtain Google access token');
+
+  const driveFilename = `${randomUUID()}.pdf`;
 
   const res = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable&fields=id', {
     method: 'POST',
@@ -45,7 +56,7 @@ export async function createResumableUploadSession(
       'X-Upload-Content-Type': mimeType,
       'X-Upload-Content-Length': String(fileSize),
     },
-    body: JSON.stringify({ name: filename, parents: [FOLDER_ID] }),
+    body: JSON.stringify({ name: driveFilename, parents: [FOLDER_ID] }),
   });
 
   if (!res.ok) {
@@ -53,7 +64,25 @@ export async function createResumableUploadSession(
   }
   const uploadUrl = res.headers.get('Location');
   if (!uploadUrl) throw new Error('Drive did not return an upload session URL');
-  return { uploadUrl, accessToken };
+  return { uploadUrl, accessToken, driveFilename };
+}
+
+// Looks up a file by its exact name within our folder, retrying briefly to
+// absorb any propagation delay right after a resumable upload completes.
+export async function findDriveFileByName(filename: string): Promise<string | null> {
+  const drive = getDriveClient();
+  const escaped = filename.replace(/'/g, "\\'");
+  for (let attempt = 0; attempt < 5; attempt++) {
+    const res = await drive.files.list({
+      q: `name='${escaped}' and '${FOLDER_ID}' in parents and trashed=false`,
+      fields: 'files(id)',
+      spaces: 'drive',
+    });
+    const file = res.data.files?.[0];
+    if (file?.id) return file.id;
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+  }
+  return null;
 }
 
 // Drive file IDs are long, unguessable, random-looking strings, so granting
