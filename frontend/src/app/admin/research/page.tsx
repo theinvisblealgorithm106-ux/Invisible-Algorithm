@@ -25,6 +25,9 @@ export default function AdminResearchPage() {
   const [submitName, setSubmitName] = useState('');
   const [submitFile, setSubmitFile] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [submitProgress, setSubmitProgress] = useState(0);
+
+  const MAX_PDF_BYTES = 64 * 1024 * 1024;
 
   const fetchResearch = useCallback(async () => {
     setLoading(true);
@@ -50,6 +53,34 @@ export default function AdminResearchPage() {
     } catch { toast.error('Failed to update'); }
   };
 
+  // Uploads straight from the browser to Google Drive (bypassing our own
+  // server for the file bytes, since Vercel caps request/response bodies at
+  // 4.5MB) using the resumable session started by /research/upload/session.
+  const putFileToDrive = (uploadUrl: string, accessToken: string, file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open('PUT', uploadUrl, true);
+      xhr.setRequestHeader('Authorization', `Bearer ${accessToken}`);
+      xhr.setRequestHeader('Content-Type', file.type);
+      xhr.upload.onprogress = (e) => {
+        if (e.lengthComputable) setSubmitProgress(Math.round((e.loaded / e.total) * 100));
+      };
+      xhr.onload = () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          try {
+            resolve(JSON.parse(xhr.responseText).id);
+          } catch {
+            reject(new Error('Drive returned an unexpected response'));
+          }
+        } else {
+          reject(new Error(`Drive upload failed (${xhr.status})`));
+        }
+      };
+      xhr.onerror = () => reject(new Error('Network error during upload'));
+      xhr.send(file);
+    });
+  };
+
   const handleSubmitPdf = async () => {
     if (!submitTitle.trim() || !submitName.trim() || !submitFile) {
       toast.error('Title, your name, and a PDF file are required');
@@ -59,13 +90,28 @@ export default function AdminResearchPage() {
       toast.error('File must be a PDF');
       return;
     }
+    if (submitFile.size > MAX_PDF_BYTES) {
+      toast.error('PDF must be under 64MB');
+      return;
+    }
     setSubmitting(true);
+    setSubmitProgress(0);
     try {
-      const formData = new FormData();
-      formData.append('title', submitTitle.trim());
-      formData.append('name', submitName.trim());
-      formData.append('file', submitFile);
-      await researchApi.uploadPdf(formData);
+      const sessionRes = await researchApi.initUpload({
+        filename: submitFile.name,
+        fileSize: submitFile.size,
+        mimeType: submitFile.type,
+      });
+      const { uploadUrl, accessToken } = sessionRes.data.data;
+
+      const driveFileId = await putFileToDrive(uploadUrl, accessToken, submitFile);
+
+      await researchApi.completeUpload({
+        title: submitTitle.trim(),
+        name: submitName.trim(),
+        driveFileId,
+      });
+
       toast.success('Paper submitted for review');
       setSubmitTitle('');
       setSubmitName('');
@@ -73,10 +119,11 @@ export default function AdminResearchPage() {
       setShowSubmitForm(false);
       fetchResearch();
     } catch (err: unknown) {
-      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Submission failed';
+      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || (err as Error)?.message || 'Submission failed';
       toast.error(msg);
     } finally {
       setSubmitting(false);
+      setSubmitProgress(0);
     }
   };
 
@@ -226,7 +273,7 @@ export default function AdminResearchPage() {
                 <input value={submitName} onChange={(e) => setSubmitName(e.target.value)} className="input-base" placeholder="Full name" />
               </div>
               <div>
-                <label className="block text-xs font-medium text-text-secondary mb-1.5">PDF File * <span className="text-text-muted font-normal">(max 8MB)</span></label>
+                <label className="block text-xs font-medium text-text-secondary mb-1.5">PDF File * <span className="text-text-muted font-normal">(max 64MB)</span></label>
                 <label className="flex items-center gap-2 input-base cursor-pointer text-text-secondary">
                   <FileUp className="w-4 h-4 flex-shrink-0" />
                   <span className="truncate">{submitFile ? submitFile.name : 'Choose a PDF file...'}</span>
@@ -238,6 +285,14 @@ export default function AdminResearchPage() {
                   />
                 </label>
               </div>
+              {submitting && (
+                <div>
+                  <div className="w-full h-1.5 bg-bg-elevated rounded-full overflow-hidden">
+                    <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${submitProgress}%` }} />
+                  </div>
+                  <p className="text-xs text-text-muted mt-1">{submitProgress < 100 ? `Uploading... ${submitProgress}%` : 'Finalizing...'}</p>
+                </div>
+              )}
               <div className="flex gap-3 pt-2 border-t border-border">
                 <button onClick={handleSubmitPdf} disabled={submitting} className="btn-primary">
                   {submitting ? 'Submitting...' : 'Submit for Review'}

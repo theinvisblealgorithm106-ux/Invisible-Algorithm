@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import { connectDB } from '@/lib/mongodb';
 import { Research } from '@/models/Research';
 import { requireResearchModerator } from '@/lib/auth-helpers';
+import { deletePdfFromDrive } from '@/lib/googleDrive';
 
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -38,7 +39,10 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
     requireResearchModerator(req);
     await connectDB();
     const { id } = await params;
-    await Research.findByIdAndDelete(id);
+    const research = await Research.findByIdAndDelete(id);
+    if (research?.pdfDriveFileId) {
+      await deletePdfFromDrive(research.pdfDriveFileId);
+    }
     return NextResponse.json({ success: true, message: 'Deleted' });
   } catch (err) {
     if (err instanceof NextResponse) return err;
