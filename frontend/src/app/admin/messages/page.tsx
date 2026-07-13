@@ -4,6 +4,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { Mail, Eye, Archive, Reply, X } from 'lucide-react';
 import { contactApi } from '@/lib/api';
 import { formatDate, getStatusColor, cn } from '@/lib/utils';
+import { useAuthStore } from '@/store/authStore';
+import { canWriteTab } from '@/lib/permissions';
 import toast from 'react-hot-toast';
 
 interface Message {
@@ -18,6 +20,8 @@ interface Message {
 }
 
 export default function AdminMessagesPage() {
+  const { user } = useAuthStore();
+  const canWrite = canWriteTab(user?.role, 'messages');
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
   const [status, setStatus] = useState('');
@@ -98,7 +102,7 @@ export default function AdminMessagesPage() {
             ) : messages.length === 0 ? (
               <tr><td colSpan={6} className="px-4 py-12 text-center text-text-tertiary">No messages found</td></tr>
             ) : messages.map((msg) => (
-              <tr key={msg._id} className={cn('hover:bg-bg-elevated transition-colors cursor-pointer', msg.status === 'unread' && 'bg-primary/3')} onClick={() => { setSelected(msg); if (msg.status === 'unread') handleStatusChange(msg._id, 'read'); }}>
+              <tr key={msg._id} className={cn('hover:bg-bg-elevated transition-colors cursor-pointer', msg.status === 'unread' && 'bg-primary/3')} onClick={() => { setSelected(msg); if (canWrite && msg.status === 'unread') handleStatusChange(msg._id, 'read'); }}>
                 <td className="px-4 py-3">
                   <p className="font-medium text-text-primary text-sm">{msg.name}</p>
                   <p className="text-xs text-text-muted">{msg.email}</p>
@@ -149,10 +153,14 @@ export default function AdminMessagesPage() {
                 <a href={`mailto:${selected.email}?subject=Re: ${selected.subject}`} className="btn-primary text-sm">
                   <Reply className="w-4 h-4" /> Reply via Email
                 </a>
-                <button onClick={() => handleStatusChange(selected._id, 'replied', true)} className="btn-secondary text-sm">Mark Replied</button>
-                <button onClick={() => handleStatusChange(selected._id, 'archived', true)} className="btn-secondary text-sm">
-                  <Archive className="w-4 h-4" />
-                </button>
+                {canWrite && (
+                  <>
+                    <button onClick={() => handleStatusChange(selected._id, 'replied', true)} className="btn-secondary text-sm">Mark Replied</button>
+                    <button onClick={() => handleStatusChange(selected._id, 'archived', true)} className="btn-secondary text-sm">
+                      <Archive className="w-4 h-4" />
+                    </button>
+                  </>
+                )}
               </div>
             </div>
           </div>

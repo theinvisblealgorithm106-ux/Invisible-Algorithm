@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server';
 import { connectDB } from '@/lib/mongodb';
 import { User } from '@/models/User';
-import { requireAdmin } from '@/lib/auth-helpers';
+import { requireSuperAdmin } from '@/lib/auth-helpers';
 
 export async function GET(req: Request) {
   try {
-    requireAdmin(req);
+    requireSuperAdmin(req);
     await connectDB();
     const [byRole, total] = await Promise.all([
       User.aggregate([{ $group: { _id: '$role', count: { $sum: 1 } } }]),

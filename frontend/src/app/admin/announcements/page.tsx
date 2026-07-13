@@ -6,6 +6,7 @@ import { announcementsApi } from '@/lib/api';
 import { Announcement } from '@/types';
 import { formatDate, getStatusColor, cn } from '@/lib/utils';
 import { useAuthStore } from '@/store/authStore';
+import { canWriteTab } from '@/lib/permissions';
 import toast from 'react-hot-toast';
 
 interface AnnouncementForm extends Record<string, unknown> {
@@ -29,6 +30,8 @@ const defaultForm: AnnouncementForm = {
 };
 
 export default function AdminAnnouncementsPage() {
+  const { user } = useAuthStore();
+  const canWrite = canWriteTab(user?.role, 'announcements');
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -107,9 +110,11 @@ export default function AdminAnnouncementsPage() {
           <h1 className="heading-lg mb-1">Announcements</h1>
           <p className="text-text-tertiary text-sm">Manage platform announcements</p>
         </div>
-        <button onClick={() => { setShowForm(true); setEditing(null); setForm(defaultForm); }} className="btn-primary text-sm">
-          <Plus className="w-4 h-4" /> New Announcement
-        </button>
+        {canWrite && (
+          <button onClick={() => { setShowForm(true); setEditing(null); setForm(defaultForm); }} className="btn-primary text-sm">
+            <Plus className="w-4 h-4" /> New Announcement
+          </button>
+        )}
       </div>
 
       <div className="card p-0 overflow-hidden">
@@ -121,7 +126,7 @@ export default function AdminAnnouncementsPage() {
               <th className="text-left px-4 py-3 text-xs font-medium text-text-muted">Status</th>
               <th className="text-left px-4 py-3 text-xs font-medium text-text-muted hidden md:table-cell">Priority</th>
               <th className="text-left px-4 py-3 text-xs font-medium text-text-muted hidden lg:table-cell">Date</th>
-              <th className="text-right px-4 py-3 text-xs font-medium text-text-muted">Actions</th>
+              {canWrite && <th className="text-right px-4 py-3 text-xs font-medium text-text-muted">Actions</th>}
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
@@ -145,16 +150,18 @@ export default function AdminAnnouncementsPage() {
                 </td>
                 <td className="px-4 py-3 text-text-secondary capitalize hidden md:table-cell">{ann.priority}</td>
                 <td className="px-4 py-3 text-text-tertiary hidden lg:table-cell">{formatDate(ann.createdAt)}</td>
-                <td className="px-4 py-3 text-right">
-                  <div className="flex items-center justify-end gap-1">
-                    <button onClick={() => openEdit(ann)} className="btn-ghost px-2 py-1.5">
-                      <Edit className="w-3.5 h-3.5" />
-                    </button>
-                    <button onClick={() => handleDelete(ann._id)} className="btn-ghost px-2 py-1.5 text-error hover:bg-error/10">
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                </td>
+                {canWrite && (
+                  <td className="px-4 py-3 text-right">
+                    <div className="flex items-center justify-end gap-1">
+                      <button onClick={() => openEdit(ann)} className="btn-ghost px-2 py-1.5">
+                        <Edit className="w-3.5 h-3.5" />
+                      </button>
+                      <button onClick={() => handleDelete(ann._id)} className="btn-ghost px-2 py-1.5 text-error hover:bg-error/10">
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </td>
+                )}
               </tr>
             ))}
           </tbody>

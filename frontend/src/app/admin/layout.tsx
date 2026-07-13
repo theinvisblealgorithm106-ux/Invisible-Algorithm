@@ -3,24 +3,30 @@
 import { useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { Shield, Users, BookOpen, Calendar, FileText, Bell, MessageSquare, BarChart3, Home, LogOut } from 'lucide-react';
+import { Shield, Users, BookOpen, Calendar, FileText, Bell, MessageSquare, BarChart3, Home, LogOut, Eye } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { cn } from '@/lib/utils';
+import { AdminTab, canAccessAdmin, canViewTab, defaultAdminPath } from '@/lib/permissions';
 
-const adminNav = [
-  { href: '/admin', icon: BarChart3, label: 'Overview', exact: true },
-  { href: '/admin/applications', icon: FileText, label: 'Applications' },
-  { href: '/admin/users', icon: Users, label: 'Users' },
-  { href: '/admin/research', icon: BookOpen, label: 'Research' },
-  { href: '/admin/events', icon: Calendar, label: 'Events' },
-  { href: '/admin/announcements', icon: Bell, label: 'Announcements' },
-  { href: '/admin/messages', icon: MessageSquare, label: 'Messages' },
+const adminNav: { href: string; icon: typeof BarChart3; label: string; tab: AdminTab; exact?: boolean }[] = [
+  { href: '/admin', icon: BarChart3, label: 'Overview', tab: 'overview', exact: true },
+  { href: '/admin/applications', icon: FileText, label: 'Applications', tab: 'applications' },
+  { href: '/admin/users', icon: Users, label: 'Users', tab: 'users' },
+  { href: '/admin/research', icon: BookOpen, label: 'Research', tab: 'research' },
+  { href: '/admin/events', icon: Calendar, label: 'Events', tab: 'events' },
+  { href: '/admin/announcements', icon: Bell, label: 'Announcements', tab: 'announcements' },
+  { href: '/admin/messages', icon: MessageSquare, label: 'Messages', tab: 'messages' },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated, hasRole, logout } = useAuthStore();
+  const { isAuthenticated, user, logout } = useAuthStore();
   const router = useRouter();
   const pathname = usePathname();
+  const role = user?.role;
+
+  const currentTab = adminNav.find(({ href, exact }) =>
+    exact ? pathname === href : pathname.startsWith(href)
+  )?.tab;
 
   const handleLogout = () => {
     logout();
@@ -32,12 +38,20 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       router.push('/auth/login?redirect=/admin');
       return;
     }
-    if (!hasRole(['admin', 'super_admin'])) {
+    if (!canAccessAdmin(role)) {
       router.push('/');
+      return;
     }
-  }, [isAuthenticated, hasRole, router]);
+    if (currentTab && !canViewTab(role, currentTab)) {
+      router.push(defaultAdminPath(role));
+    }
+  }, [isAuthenticated, role, currentTab, router]);
 
-  if (!isAuthenticated || !hasRole(['admin', 'super_admin'])) return null;
+  const allowed = isAuthenticated && canAccessAdmin(role) && (!currentTab || canViewTab(role, currentTab));
+  if (!allowed) return null;
+
+  const visibleNav = adminNav.filter((item) => canViewTab(role, item.tab));
+  const readOnly = role === 'admin';
 
   return (
     <div className="pt-16 min-h-screen flex">
@@ -47,9 +61,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <div className="flex items-center gap-2 mb-6 px-2 py-2">
             <Shield className="w-4 h-4 text-primary-light" />
             <span className="text-sm font-semibold text-text-primary">Admin Panel</span>
+            {readOnly && (
+              <span className="ml-auto flex items-center gap-1 text-[10px] font-medium text-text-muted bg-bg-elevated border border-border rounded-full px-2 py-0.5" title="Tech Dept: view only">
+                <Eye className="w-3 h-3" /> View only
+              </span>
+            )}
           </div>
           <nav className="space-y-1">
-            {adminNav.map(({ href, icon: Icon, label, exact }) => {
+            {visibleNav.map(({ href, icon: Icon, label, exact }) => {
               const isActive = exact ? pathname === href : pathname.startsWith(href);
               return (
                 <Link

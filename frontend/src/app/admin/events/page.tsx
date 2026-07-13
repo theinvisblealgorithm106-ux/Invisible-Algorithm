@@ -5,6 +5,8 @@ import { Plus, Trash2, Edit, X } from 'lucide-react';
 import { eventsApi } from '@/lib/api';
 import { Event } from '@/types';
 import { formatDate, getStatusColor, EVENT_TYPES, cn } from '@/lib/utils';
+import { useAuthStore } from '@/store/authStore';
+import { canWriteTab } from '@/lib/permissions';
 import toast from 'react-hot-toast';
 
 interface EventForm {
@@ -32,6 +34,8 @@ const defaultForm: EventForm = {
 };
 
 export default function AdminEventsPage() {
+  const { user } = useAuthStore();
+  const canWrite = canWriteTab(user?.role, 'events');
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -121,9 +125,11 @@ export default function AdminEventsPage() {
           <h1 className="heading-lg mb-1">Events</h1>
           <p className="text-text-tertiary text-sm">Manage workshops and events</p>
         </div>
-        <button onClick={() => { setShowForm(true); setEditing(null); setForm(defaultForm); }} className="btn-primary text-sm">
-          <Plus className="w-4 h-4" /> New Event
-        </button>
+        {canWrite && (
+          <button onClick={() => { setShowForm(true); setEditing(null); setForm(defaultForm); }} className="btn-primary text-sm">
+            <Plus className="w-4 h-4" /> New Event
+          </button>
+        )}
       </div>
 
       <div className="card p-0 overflow-hidden">
@@ -135,7 +141,7 @@ export default function AdminEventsPage() {
               <th className="text-left px-4 py-3 text-xs font-medium text-text-muted">Status</th>
               <th className="text-left px-4 py-3 text-xs font-medium text-text-muted hidden md:table-cell">Date</th>
               <th className="text-left px-4 py-3 text-xs font-medium text-text-muted hidden lg:table-cell">Registered</th>
-              <th className="text-right px-4 py-3 text-xs font-medium text-text-muted">Actions</th>
+              {canWrite && <th className="text-right px-4 py-3 text-xs font-medium text-text-muted">Actions</th>}
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
@@ -159,12 +165,14 @@ export default function AdminEventsPage() {
                 <td className="px-4 py-3 text-text-secondary hidden lg:table-cell">
                   {event.registeredCount}{event.capacity ? ` / ${event.capacity}` : ''}
                 </td>
-                <td className="px-4 py-3 text-right">
-                  <div className="flex items-center justify-end gap-1">
-                    <button onClick={() => openEdit(event)} className="btn-ghost px-2 py-1.5"><Edit className="w-3.5 h-3.5" /></button>
-                    <button onClick={() => handleDelete(event._id)} className="btn-ghost px-2 py-1.5 text-error hover:bg-error/10"><Trash2 className="w-3.5 h-3.5" /></button>
-                  </div>
-                </td>
+                {canWrite && (
+                  <td className="px-4 py-3 text-right">
+                    <div className="flex items-center justify-end gap-1">
+                      <button onClick={() => openEdit(event)} className="btn-ghost px-2 py-1.5"><Edit className="w-3.5 h-3.5" /></button>
+                      <button onClick={() => handleDelete(event._id)} className="btn-ghost px-2 py-1.5 text-error hover:bg-error/10"><Trash2 className="w-3.5 h-3.5" /></button>
+                    </div>
+                  </td>
+                )}
               </tr>
             ))}
           </tbody>

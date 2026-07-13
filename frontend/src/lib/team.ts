@@ -5,6 +5,7 @@ export interface ExecutiveTeamMember {
   role: string;
   school?: string;
   avatar: string;
+  avatarPosition?: string;
   bio: string;
 }
 
@@ -23,6 +24,7 @@ export const executiveTeam: ExecutiveTeamMember[] = [
     lastName: '',
     role: 'Executive Director of Information and Technology',
     avatar: '/team/shriyan.png',
+    avatarPosition: 'object-top',
     bio: "A builder at heart, Shriyan spends his time turning ideas into real projects — robots, games, websites, and personal builds like CogniFlow. Most of his time goes into Onshape, coding, robotics, and 3D printing, with a constant focus on learning how things work and making them better. Currently exploring Unity, AI, and game development.",
   },
   {

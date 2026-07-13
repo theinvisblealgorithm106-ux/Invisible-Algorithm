@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server';
 import { connectDB } from '@/lib/mongodb';
 import { ContactMessage } from '@/models/ContactMessage';
-import { requireAdmin } from '@/lib/auth-helpers';
+import { requireAdminTabRead } from '@/lib/auth-helpers';
 
 export async function GET(req: Request) {
   try {
-    requireAdmin(req);
+    requireAdminTabRead(req, 'messages');
     await connectDB();
     const { searchParams } = new URL(req.url);
     const page = parseInt(searchParams.get('page') || '1');

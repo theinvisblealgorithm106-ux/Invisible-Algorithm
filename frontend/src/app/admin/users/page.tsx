@@ -9,6 +9,13 @@ import { useAuthStore } from '@/store/authStore';
 import toast from 'react-hot-toast';
 
 const roles: UserRole[] = ['student', 'member', 'researcher', 'admin', 'super_admin'];
+const roleLabels: Record<string, string> = {
+  student: 'Student',
+  member: 'Member',
+  researcher: 'Researcher',
+  admin: 'Tech Dept',
+  super_admin: 'Super Admin',
+};
 
 export default function AdminUsersPage() {
   const { user: currentUser, hasRole } = useAuthStore();
@@ -82,7 +89,7 @@ export default function AdminUsersPage() {
           className="input-base py-2 w-auto"
         >
           <option value="">All Roles</option>
-          {roles.map(r => <option key={r} value={r}>{r.replace('_', ' ')}</option>)}
+          {roles.map(r => <option key={r} value={r}>{roleLabels[r]}</option>)}
         </select>
       </div>
 
@@ -121,11 +128,11 @@ export default function AdminUsersPage() {
                         onChange={(e) => handleRoleChange(u.id, e.target.value as UserRole)}
                         className="text-xs bg-transparent border border-border rounded-lg px-2 py-1 text-text-secondary focus:outline-none focus:border-primary"
                       >
-                        {roles.map(r => <option key={r} value={r}>{r.replace('_', ' ')}</option>)}
+                        {roles.map(r => <option key={r} value={r}>{roleLabels[r]}</option>)}
                       </select>
                     ) : (
                       <span className={cn('badge text-xs', getRoleBadgeColor(u.role))}>
-                        {u.role.replace('_', ' ')}
+                        {roleLabels[u.role] || u.role.replace('_', ' ')}
                       </span>
                     )}
                   </td>

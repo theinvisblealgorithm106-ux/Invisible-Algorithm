@@ -1,19 +1,30 @@
 #!/usr/bin/env node
-// One-off script to create the first super_admin user (there is no /register
-// route in the app, so this is the only way to get an initial account).
+// One-off script to create/update a user directly in MongoDB (there is no
+// /register or admin "create user" route in the app, so this is the only
+// way to get an account with a given role).
 //
 // Usage:
-//   node --env-file=.env.local scripts/seed-admin.mjs <email> <password> <firstName> <lastName>
+//   node --env-file=.env.local scripts/seed-admin.mjs <email> <password> <firstName> <lastName> [role]
+//
+// role defaults to "super_admin" if omitted. Valid roles: student, member,
+// researcher, admin, super_admin.
 //
 // Or set MONGODB_URI in the environment yourself before running.
 
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 
-const [, , email, password, firstName, lastName] = process.argv;
+const VALID_ROLES = ['student', 'member', 'researcher', 'admin', 'super_admin'];
+const [, , email, password, firstName, lastName, roleArg] = process.argv;
+const role = roleArg || 'super_admin';
 
 if (!email || !password || !firstName || !lastName) {
-  console.error('Usage: node --env-file=.env.local scripts/seed-admin.mjs <email> <password> <firstName> <lastName>');
+  console.error('Usage: node --env-file=.env.local scripts/seed-admin.mjs <email> <password> <firstName> <lastName> [role]');
+  process.exit(1);
+}
+
+if (!VALID_ROLES.includes(role)) {
+  console.error(`Invalid role "${role}". Must be one of: ${VALID_ROLES.join(', ')}`);
   process.exit(1);
 }
 
@@ -45,11 +56,11 @@ async function main() {
   const hashed = await bcrypt.hash(password, 12);
   const user = await User.findOneAndUpdate(
     { email: email.toLowerCase() },
-    { email: email.toLowerCase(), password: hashed, firstName, lastName, role: 'super_admin', isActive: true },
+    { email: email.toLowerCase(), password: hashed, firstName, lastName, role, isActive: true },
     { upsert: true, new: true, setDefaultsOnInsert: true }
   );
 
-  console.log(`super_admin ready: ${user.email}`);
+  console.log(`${user.role} ready: ${user.email}`);
   await mongoose.disconnect();
 }
 

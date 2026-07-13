@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
 import { connectDB } from '@/lib/mongodb';
 import { Research } from '@/models/Research';
-import { getTokenFromRequest, verifyAccessToken, requireAdmin } from '@/lib/auth-helpers';
+import { getTokenFromRequest, verifyAccessToken, requireAdminTabWrite } from '@/lib/auth-helpers';
+import { canViewTab } from '@/lib/permissions';
 
 export async function GET(req: Request) {
   try {
@@ -13,10 +14,10 @@ export async function GET(req: Request) {
     const category = searchParams.get('category') || '';
     const token = getTokenFromRequest(req);
     const payload = token ? verifyAccessToken(token) : null;
-    const isAdmin = payload && ['admin', 'super_admin'].includes(payload.role);
+    const canSeeAllStatuses = payload && canViewTab(payload.role, 'research');
 
     const query: Record<string, unknown> = {};
-    if (!isAdmin) query.status = 'published';
+    if (!canSeeAllStatuses) query.status = 'published';
     if (category) query.category = category;
     if (search) query.$text = { $search: search };
 
@@ -34,7 +35,7 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   try {
-    const payload = requireAdmin(req);
+    const payload = requireAdminTabWrite(req, 'research');
     await connectDB();
     const body = await req.json();
     const research = await Research.create({ ...body, submittedBy: payload.userId });

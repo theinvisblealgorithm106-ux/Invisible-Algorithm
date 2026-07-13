@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server';
 import { connectDB } from '@/lib/mongodb';
 import { Research } from '@/models/Research';
-import { requireAdmin } from '@/lib/auth-helpers';
+import { requireAdminTabRead } from '@/lib/auth-helpers';
 
 export async function GET(req: Request) {
   try {
-    requireAdmin(req);
+    requireAdminTabRead(req, 'overview');
     await connectDB();
     const [byStatus, totalViews] = await Promise.all([
       Research.aggregate([{ $group: { _id: '$status', count: { $sum: 1 } } }]),

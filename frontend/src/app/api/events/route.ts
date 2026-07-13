@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { connectDB } from '@/lib/mongodb';
 import { Event } from '@/models/Event';
-import { requireAdmin } from '@/lib/auth-helpers';
+import { requireAdminTabWrite } from '@/lib/auth-helpers';
 
 export async function GET(req: Request) {
   try {
@@ -30,7 +30,7 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   try {
-    const payload = requireAdmin(req);
+    const payload = requireAdminTabWrite(req, 'events');
     await connectDB();
     const body = await req.json();
     const event = await Event.create({ ...body, organizer: payload.userId });

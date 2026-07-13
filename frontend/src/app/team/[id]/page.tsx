@@ -7,11 +7,11 @@ import { ArrowLeft, Globe, Linkedin, Github, Twitter } from 'lucide-react';
 import { usersApi } from '@/lib/api';
 import { User } from '@/types';
 import { executiveTeam } from '@/lib/team';
-import { getInitials, getRoleBadgeColor } from '@/lib/utils';
+import { getInitials, getRoleBadgeColor, cn } from '@/lib/utils';
 
 const roleLabels: Record<string, string> = {
   super_admin: 'Leadership',
-  admin: 'Administration',
+  admin: 'Tech Dept',
   researcher: 'Researcher',
   member: 'Member',
   student: 'Student',
@@ -76,7 +76,10 @@ export default function TeamMemberPage() {
                   <img
                     src={person.avatar}
                     alt={`${person.firstName} ${person.lastName}`}
-                    className="w-full aspect-square rounded-2xl object-cover border-2 border-border"
+                    className={cn(
+                      'w-full aspect-square rounded-2xl object-cover border-2 border-border',
+                      staticMember?.avatarPosition
+                    )}
                   />
                 ) : (
                   <div className="w-full aspect-square rounded-2xl bg-primary/10 border-2 border-border flex items-center justify-center">

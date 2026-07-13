@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { Users, BookOpen, Calendar, FileText, MessageSquare, TrendingUp } from 'lucide-react';
-import { usersApi, researchApi, eventsApi, applicationsApi, contactApi } from '@/lib/api';
-import { formatDate } from '@/lib/utils';
+import { usersApi, researchApi, eventsApi, applicationsApi } from '@/lib/api';
+import { useAuthStore } from '@/store/authStore';
 import toast from 'react-hot-toast';
 
 interface StatusCount { _id: string; count: number }
@@ -17,6 +17,8 @@ interface Stats {
 const sumCounts = (rows?: StatusCount[]) => rows?.reduce((sum, r) => sum + r.count, 0) ?? 0;
 
 export default function AdminOverviewPage() {
+  const { user } = useAuthStore();
+  const isSuperAdmin = user?.role === 'super_admin';
   const [stats, setStats] = useState<Partial<Stats>>({});
   const [loading, setLoading] = useState(true);
 
@@ -24,13 +26,13 @@ export default function AdminOverviewPage() {
     const load = async () => {
       try {
         const [uRes, rRes, eRes, aRes] = await Promise.all([
-          usersApi.getStats(),
+          isSuperAdmin ? usersApi.getStats() : Promise.resolve(null),
           researchApi.getStats(),
           eventsApi.getStats(),
           applicationsApi.getStats(),
         ]);
         setStats({
-          users: uRes.data.data,
+          users: uRes?.data.data,
           research: rRes.data.data,
           events: eRes.data.data,
           applications: aRes.data.data,
@@ -41,16 +43,16 @@ export default function AdminOverviewPage() {
       setLoading(false);
     };
     load();
-  }, []);
+  }, [isSuperAdmin]);
 
   const summaryCards = [
-    {
+    ...(isSuperAdmin ? [{
       icon: Users,
       label: 'Total Users',
       value: stats.users?.total ?? '—',
       color: 'text-primary-light',
       bg: 'bg-primary/10',
-    },
+    }] : []),
     {
       icon: FileText,
       label: 'Applications',
@@ -101,33 +103,35 @@ export default function AdminOverviewPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* User roles breakdown */}
-        <div className="card">
-          <h2 className="font-semibold text-text-primary mb-4 flex items-center gap-2">
-            <Users className="w-4 h-4 text-text-muted" /> Users by Role
-          </h2>
-          {loading ? (
-            <div className="space-y-2">
-              {[...Array(4)].map((_, i) => <div key={i} className="h-8 bg-bg-elevated rounded animate-pulse" />)}
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {stats.users?.byRole.map((r) => (
-                <div key={r._id} className="flex items-center justify-between">
-                  <span className="text-sm text-text-secondary capitalize">{r._id.replace('_', ' ')}</span>
-                  <div className="flex items-center gap-3">
-                    <div className="w-24 h-1.5 bg-bg-elevated rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-primary rounded-full"
-                        style={{ width: `${Math.min(100, (r.count / (stats.users?.total || 1)) * 100)}%` }}
-                      />
+        {isSuperAdmin && (
+          <div className="card">
+            <h2 className="font-semibold text-text-primary mb-4 flex items-center gap-2">
+              <Users className="w-4 h-4 text-text-muted" /> Users by Role
+            </h2>
+            {loading ? (
+              <div className="space-y-2">
+                {[...Array(4)].map((_, i) => <div key={i} className="h-8 bg-bg-elevated rounded animate-pulse" />)}
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {stats.users?.byRole.map((r) => (
+                  <div key={r._id} className="flex items-center justify-between">
+                    <span className="text-sm text-text-secondary capitalize">{r._id.replace('_', ' ')}</span>
+                    <div className="flex items-center gap-3">
+                      <div className="w-24 h-1.5 bg-bg-elevated rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-primary rounded-full"
+                          style={{ width: `${Math.min(100, (r.count / (stats.users?.total || 1)) * 100)}%` }}
+                        />
+                      </div>
+                      <span className="text-sm font-medium text-text-primary w-6 text-right">{r.count}</span>
                     </div>
-                    <span className="text-sm font-medium text-text-primary w-6 text-right">{r.count}</span>
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Application statuses */}
         <div className="card">

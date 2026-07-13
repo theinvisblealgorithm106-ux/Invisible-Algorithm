@@ -5,9 +5,13 @@ import { Search, Eye, Check, X, BookOpen } from 'lucide-react';
 import { researchApi } from '@/lib/api';
 import { Research } from '@/types';
 import { formatDate, getStatusColor, formatCategory, cn } from '@/lib/utils';
+import { useAuthStore } from '@/store/authStore';
+import { canModerateResearch } from '@/lib/permissions';
 import toast from 'react-hot-toast';
 
 export default function AdminResearchPage() {
+  const { user } = useAuthStore();
+  const canModerate = canModerateResearch(user?.role);
   const [research, setResearch] = useState<Research[]>([]);
   const [loading, setLoading] = useState(true);
   const [status, setStatus] = useState('submitted');
@@ -132,26 +136,28 @@ export default function AdminResearchPage() {
                   {selected.tags.map((tag: string) => <span key={tag} className="text-xs bg-bg-elevated text-text-tertiary px-2 py-0.5 rounded-full border border-border">{tag}</span>)}
                 </div>
               )}
-              <div className="flex flex-wrap gap-2 pt-4 border-t border-border">
-                {selected.status !== 'published' && (
-                  <button onClick={() => handleStatusUpdate(selected._id, 'published')} className="btn-primary text-sm bg-success hover:bg-success/80">
-                    <Check className="w-4 h-4" /> Publish
+              {canModerate && (
+                <div className="flex flex-wrap gap-2 pt-4 border-t border-border">
+                  {selected.status !== 'published' && (
+                    <button onClick={() => handleStatusUpdate(selected._id, 'published')} className="btn-primary text-sm bg-success hover:bg-success/80">
+                      <Check className="w-4 h-4" /> Publish
+                    </button>
+                  )}
+                  {selected.status === 'submitted' && (
+                    <button onClick={() => handleStatusUpdate(selected._id, 'under-review')} className="btn-secondary text-sm">
+                      Mark Under Review
+                    </button>
+                  )}
+                  {selected.status !== 'rejected' && (
+                    <button onClick={() => handleStatusUpdate(selected._id, 'rejected')} className="btn-secondary text-sm text-error border-error/30 hover:bg-error/10">
+                      <X className="w-4 h-4" /> Reject
+                    </button>
+                  )}
+                  <button onClick={() => handleStatusUpdate(selected._id, selected.status, !selected.featured)} className="btn-secondary text-sm">
+                    {selected.featured ? 'Unfeature' : 'Feature'}
                   </button>
-                )}
-                {selected.status === 'submitted' && (
-                  <button onClick={() => handleStatusUpdate(selected._id, 'under-review')} className="btn-secondary text-sm">
-                    Mark Under Review
-                  </button>
-                )}
-                {selected.status !== 'rejected' && (
-                  <button onClick={() => handleStatusUpdate(selected._id, 'rejected')} className="btn-secondary text-sm text-error border-error/30 hover:bg-error/10">
-                    <X className="w-4 h-4" /> Reject
-                  </button>
-                )}
-                <button onClick={() => handleStatusUpdate(selected._id, selected.status, !selected.featured)} className="btn-secondary text-sm">
-                  {selected.featured ? 'Unfeature' : 'Feature'}
-                </button>
-              </div>
+                </div>
+              )}
             </div>
           </div>
         </div>

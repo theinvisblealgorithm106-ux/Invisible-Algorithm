@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import { NextResponse } from 'next/server';
+import { AdminTab, canModerateResearch, canViewTab, canWriteTab } from '@/lib/permissions';
 
 const JWT_SECRET = process.env.JWT_SECRET!;
 const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET!;
@@ -38,21 +39,45 @@ export const getTokenFromRequest = (req: Request): string | null => {
   return null;
 };
 
-export const requireAdmin = (req: Request): JwtPayload => {
-  const token = getTokenFromRequest(req);
-  if (!token) throw NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
-  const payload = verifyAccessToken(token);
-  if (!payload) throw NextResponse.json({ success: false, message: 'Invalid token' }, { status: 401 });
-  if (!['admin', 'super_admin'].includes(payload.role)) {
-    throw NextResponse.json({ success: false, message: 'Forbidden' }, { status: 403 });
-  }
-  return payload;
-};
-
 export const requireAuth = (req: Request): JwtPayload => {
   const token = getTokenFromRequest(req);
   if (!token) throw NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
   const payload = verifyAccessToken(token);
   if (!payload) throw NextResponse.json({ success: false, message: 'Invalid token' }, { status: 401 });
+  return payload;
+};
+
+export const requireSuperAdmin = (req: Request): JwtPayload => {
+  const payload = requireAuth(req);
+  if (payload.role !== 'super_admin') {
+    throw NextResponse.json({ success: false, message: 'Forbidden' }, { status: 403 });
+  }
+  return payload;
+};
+
+// Read access to a given admin panel tab (e.g. an admin table listing, or a stats card).
+export const requireAdminTabRead = (req: Request, tab: AdminTab): JwtPayload => {
+  const payload = requireAuth(req);
+  if (!canViewTab(payload.role, tab)) {
+    throw NextResponse.json({ success: false, message: 'Forbidden' }, { status: 403 });
+  }
+  return payload;
+};
+
+// Write access (create/update/delete) on a given admin panel tab.
+export const requireAdminTabWrite = (req: Request, tab: AdminTab): JwtPayload => {
+  const payload = requireAuth(req);
+  if (!canWriteTab(payload.role, tab)) {
+    throw NextResponse.json({ success: false, message: 'Forbidden' }, { status: 403 });
+  }
+  return payload;
+};
+
+// Publishing/rejecting/featuring/deleting research — separate from a researcher's create right.
+export const requireResearchModerator = (req: Request): JwtPayload => {
+  const payload = requireAuth(req);
+  if (!canModerateResearch(payload.role)) {
+    throw NextResponse.json({ success: false, message: 'Forbidden' }, { status: 403 });
+  }
   return payload;
 };

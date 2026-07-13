@@ -89,7 +89,7 @@ export default function JoinPage() {
           </div>
           <h1 className="heading-lg mb-3">Application Submitted!</h1>
           <p className="text-text-secondary mb-2">
-            Thank you for applying to The Invisible Algorithm. We've received your application and will review it within 5-10 business days.
+            Thank you for applying to The Invisible Algorithm. We've received your application and will review it ASAP.
           </p>
           <p className="text-text-tertiary text-sm mb-8">A confirmation email has been sent to the address you provided.</p>
           <a href="/" className="btn-primary">Return to Homepage</a>

@@ -5,11 +5,15 @@ import { Search, Eye, Check, X, Clock, ChevronDown } from 'lucide-react';
 import { applicationsApi } from '@/lib/api';
 import { Application } from '@/types';
 import { formatDate, getStatusColor, cn } from '@/lib/utils';
+import { useAuthStore } from '@/store/authStore';
+import { canWriteTab } from '@/lib/permissions';
 import toast from 'react-hot-toast';
 
 const statuses = ['', 'pending', 'reviewing', 'accepted', 'rejected', 'waitlisted'];
 
 export default function AdminApplicationsPage() {
+  const { user } = useAuthStore();
+  const canWrite = canWriteTab(user?.role, 'applications');
   const [applications, setApplications] = useState<Application[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -132,7 +136,7 @@ export default function AdminApplicationsPage() {
                       onClick={() => { setSelected(app); setReviewNotes(app.reviewNotes || ''); }}
                       className="btn-ghost text-xs px-3 py-1.5"
                     >
-                      Review
+                      {canWrite ? 'Review' : 'View'}
                     </button>
                   </td>
                 </tr>
@@ -196,31 +200,35 @@ export default function AdminApplicationsPage() {
                 <p className="text-sm text-text-secondary bg-bg-subtle p-3 rounded-lg border border-border">{selected.contributionPlan}</p>
               </div>
 
-              <div>
-                <label className="block text-xs font-medium text-text-secondary mb-1.5">Review Notes (optional)</label>
-                <textarea
-                  value={reviewNotes}
-                  onChange={(e) => setReviewNotes(e.target.value)}
-                  rows={3}
-                  className="input-base resize-none"
-                  placeholder="Internal notes or feedback to send to applicant..."
-                />
-              </div>
+              {canWrite && (
+                <>
+                  <div>
+                    <label className="block text-xs font-medium text-text-secondary mb-1.5">Review Notes (optional)</label>
+                    <textarea
+                      value={reviewNotes}
+                      onChange={(e) => setReviewNotes(e.target.value)}
+                      rows={3}
+                      className="input-base resize-none"
+                      placeholder="Internal notes or feedback to send to applicant..."
+                    />
+                  </div>
 
-              <div className="flex flex-wrap gap-3 pt-2 border-t border-border">
-                <button onClick={() => handleReview(selected._id, 'accepted')} disabled={reviewing} className="btn-primary text-sm bg-success hover:bg-success/80">
-                  <Check className="w-4 h-4" /> Accept
-                </button>
-                <button onClick={() => handleReview(selected._id, 'reviewing')} disabled={reviewing} className="btn-secondary text-sm">
-                  <Clock className="w-4 h-4" /> Mark Reviewing
-                </button>
-                <button onClick={() => handleReview(selected._id, 'waitlisted')} disabled={reviewing} className="btn-secondary text-sm">
-                  Waitlist
-                </button>
-                <button onClick={() => handleReview(selected._id, 'rejected')} disabled={reviewing} className="btn-secondary text-sm text-error border-error/30 hover:bg-error/10">
-                  <X className="w-4 h-4" /> Reject
-                </button>
-              </div>
+                  <div className="flex flex-wrap gap-3 pt-2 border-t border-border">
+                    <button onClick={() => handleReview(selected._id, 'accepted')} disabled={reviewing} className="btn-primary text-sm bg-success hover:bg-success/80">
+                      <Check className="w-4 h-4" /> Accept
+                    </button>
+                    <button onClick={() => handleReview(selected._id, 'reviewing')} disabled={reviewing} className="btn-secondary text-sm">
+                      <Clock className="w-4 h-4" /> Mark Reviewing
+                    </button>
+                    <button onClick={() => handleReview(selected._id, 'waitlisted')} disabled={reviewing} className="btn-secondary text-sm">
+                      Waitlist
+                    </button>
+                    <button onClick={() => handleReview(selected._id, 'rejected')} disabled={reviewing} className="btn-secondary text-sm text-error border-error/30 hover:bg-error/10">
+                      <X className="w-4 h-4" /> Reject
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </div>

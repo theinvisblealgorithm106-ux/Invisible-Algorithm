@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server';
 import { connectDB } from '@/lib/mongodb';
 import { Application } from '@/models/Application';
-import { requireAdmin } from '@/lib/auth-helpers';
+import { requireAdminTabWrite } from '@/lib/auth-helpers';
 
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    requireAdmin(req);
+    requireAdminTabWrite(req, 'applications');
     await connectDB();
     const { id } = await params;
     const { status, reviewNotes } = await req.json();

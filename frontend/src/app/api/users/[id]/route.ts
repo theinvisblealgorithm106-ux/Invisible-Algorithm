@@ -1,11 +1,10 @@
 import { NextResponse } from 'next/server';
 import { connectDB } from '@/lib/mongodb';
 import { User } from '@/models/User';
-import { requireAdmin } from '@/lib/auth-helpers';
 
-export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
+// Public — backs the /team/[id] profile page for non-executive members.
+export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    requireAdmin(req);
     await connectDB();
     const { id } = await params;
     const user = await User.findById(id);

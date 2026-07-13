@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import mongoose from 'mongoose';
 import { connectDB } from '@/lib/mongodb';
 import { Announcement } from '@/models/Announcement';
-import { requireAdmin } from '@/lib/auth-helpers';
+import { requireAdminTabWrite } from '@/lib/auth-helpers';
 
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -19,7 +19,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
 
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    requireAdmin(req);
+    requireAdminTabWrite(req, 'announcements');
     await connectDB();
     const { id } = await params;
     const body = await req.json();
@@ -34,7 +34,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
 
 export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    requireAdmin(req);
+    requireAdminTabWrite(req, 'announcements');
     await connectDB();
     const { id } = await params;
     await Announcement.findByIdAndDelete(id);

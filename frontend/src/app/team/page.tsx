@@ -18,7 +18,7 @@ const roleOrder: Record<string, number> = {
 
 const roleLabels: Record<string, string> = {
   super_admin: 'Leadership',
-  admin: 'Administration',
+  admin: 'Tech Dept',
   researcher: 'Researcher',
   member: 'Member',
   student: 'Student',
@@ -103,7 +103,10 @@ export default function TeamPage() {
                     <img
                       src={member.avatar}
                       alt={`${member.firstName} ${member.lastName}`}
-                      className="w-full h-full rounded-full object-cover border-2 border-border group-hover:border-primary/50 transition-colors"
+                      className={cn(
+                        'w-full h-full rounded-full object-cover border-2 border-border group-hover:border-primary/50 transition-colors',
+                        member.avatarPosition
+                      )}
                     />
                   ) : (
                     <div className="w-full h-full rounded-full bg-primary/10 border-2 border-border group-hover:border-primary/50 transition-colors flex items-center justify-center">
