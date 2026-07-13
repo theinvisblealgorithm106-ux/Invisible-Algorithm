@@ -12,6 +12,8 @@ export interface IResearch extends Document {
   status: string;
   publishedAt?: Date;
   pdfUrl?: string;
+  pdfData?: Buffer;
+  pdfMimeType?: string;
   externalUrl?: string;
   views: number;
   featured: boolean;
@@ -29,6 +31,8 @@ const ResearchSchema = new Schema<IResearch>({
   status: { type: String, enum: ['draft', 'submitted', 'under-review', 'published', 'rejected'], default: 'draft' },
   publishedAt: Date,
   pdfUrl: String,
+  pdfData: { type: Buffer, select: false },
+  pdfMimeType: String,
   externalUrl: String,
   views: { type: Number, default: 0 },
   featured: { type: Boolean, default: false },

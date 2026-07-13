@@ -211,7 +211,7 @@ export default function HomePage() {
                 The Invisible Algorithm was founded on a simple belief: students everywhere — regardless of their school or country — deserve access to world-class education, research opportunities, and a network of peers who share their curiosity.
               </p>
               <p className="text-text-secondary leading-relaxed mb-8">
-                We organize workshops, research collaborations, publications, and educational programs that connect high school and university students across more than 40 countries.
+                We organize workshops, research collaborations, publications, and educational programs that connect high school and university students across more than 30 schools.
               </p>
               <div className="flex gap-4 flex-wrap">
                 <Link href="/about" className="btn-primary">

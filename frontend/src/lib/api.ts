@@ -89,6 +89,7 @@ export const researchApi = {
   getAll: (params?: Record<string, unknown>) => api.get('/research', { params }),
   getById: (id: string) => api.get(`/research/${id}`),
   create: (data: Record<string, unknown>) => api.post('/research', data),
+  uploadPdf: (data: FormData) => api.post('/research/upload', data, { headers: { 'Content-Type': 'multipart/form-data' } }),
   update: (id: string, data: Record<string, unknown>) => api.patch(`/research/${id}`, data),
   delete: (id: string) => api.delete(`/research/${id}`),
   getStats: () => api.get('/research/stats'),

@@ -172,10 +172,10 @@ export default function EventsPage() {
                           <Calendar className="w-3.5 h-3.5 flex-shrink-0" />
                           {formatDate(event.startDate)}
                         </div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 min-w-0">
                           <FormatIcon className="w-3.5 h-3.5 flex-shrink-0" />
-                          <span className="capitalize">{event.format}</span>
-                          {event.location && ` · ${event.location}`}
+                          <span className="capitalize flex-shrink-0">{event.format}</span>
+                          {event.location && <span className="truncate min-w-0">· {event.location}</span>}
                         </div>
                         {event.requiresRegistration && (
                           <div className="flex items-center gap-2">

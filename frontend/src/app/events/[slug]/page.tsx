@@ -160,17 +160,32 @@ export default function EventDetailPage() {
                     </div>
                   </div>
 
-                  {event.format !== 'virtual' && event.location && (
-                    <div className="flex gap-3 text-text-secondary">
-                      <MapPin className="w-4 h-4 text-text-muted flex-shrink-0 mt-0.5" />
-                      <span>{event.location}</span>
+                  {event.location && (
+                    <div className="flex gap-3 text-text-secondary min-w-0">
+                      {event.format === 'virtual' ? (
+                        <Video className="w-4 h-4 text-text-muted flex-shrink-0 mt-0.5" />
+                      ) : (
+                        <MapPin className="w-4 h-4 text-text-muted flex-shrink-0 mt-0.5" />
+                      )}
+                      {/^https?:\/\//i.test(event.location) ? (
+                        <a
+                          href={event.location}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-primary-light hover:underline break-words min-w-0"
+                        >
+                          {event.location}
+                        </a>
+                      ) : (
+                        <span className="break-words min-w-0">{event.location}</span>
+                      )}
                     </div>
                   )}
 
-                  {event.format !== 'in-person' && (
+                  {event.format !== 'in-person' && !event.location && (
                     <div className="flex gap-3 text-text-secondary">
                       <Video className="w-4 h-4 text-text-muted flex-shrink-0 mt-0.5" />
-                      <span>Virtual event</span>
+                      <span>Virtual event — link to be shared</span>
                     </div>
                   )}
 
@@ -237,8 +252,8 @@ export default function EventDetailPage() {
                   </div>
                 )}
 
-                {event.virtualLink && event.status === 'ongoing' && (
-                  <a href={event.virtualLink} target="_blank" rel="noopener noreferrer" className="btn-secondary w-full justify-center mt-3 text-sm">
+                {(event.virtualLink || event.location) && event.format !== 'in-person' && event.status === 'ongoing' && (
+                  <a href={event.virtualLink || event.location!} target="_blank" rel="noopener noreferrer" className="btn-secondary w-full justify-center mt-3 text-sm">
                     <ExternalLink className="w-4 h-4" /> Join Now
                   </a>
                 )}

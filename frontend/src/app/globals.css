@@ -10,6 +10,13 @@
   }
   body {
     @apply bg-bg text-text-primary antialiased;
+    overflow-wrap: break-word;
+  }
+  /* Long unbroken tokens (URLs, emails pasted into forms) must never
+     overflow their container — this is the default everywhere unless a
+     component opts out with `truncate` for a single-line preview. */
+  p, span, a, li, td, div {
+    overflow-wrap: break-word;
   }
 }
 

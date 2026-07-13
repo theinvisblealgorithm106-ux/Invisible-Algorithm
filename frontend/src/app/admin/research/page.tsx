@@ -1,17 +1,18 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Search, Eye, Check, X, BookOpen } from 'lucide-react';
+import { Search, Eye, Check, X, BookOpen, Plus, Download, FileUp } from 'lucide-react';
 import { researchApi } from '@/lib/api';
 import { Research } from '@/types';
 import { formatDate, getStatusColor, formatCategory, cn } from '@/lib/utils';
 import { useAuthStore } from '@/store/authStore';
-import { canModerateResearch } from '@/lib/permissions';
+import { canModerateResearch, canWriteTab } from '@/lib/permissions';
 import toast from 'react-hot-toast';
 
 export default function AdminResearchPage() {
   const { user } = useAuthStore();
   const canModerate = canModerateResearch(user?.role);
+  const canSubmit = canWriteTab(user?.role, 'research');
   const [research, setResearch] = useState<Research[]>([]);
   const [loading, setLoading] = useState(true);
   const [status, setStatus] = useState('submitted');
@@ -19,6 +20,11 @@ export default function AdminResearchPage() {
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
   const [selected, setSelected] = useState<Research | null>(null);
+  const [showSubmitForm, setShowSubmitForm] = useState(false);
+  const [submitTitle, setSubmitTitle] = useState('');
+  const [submitName, setSubmitName] = useState('');
+  const [submitFile, setSubmitFile] = useState<File | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
   const fetchResearch = useCallback(async () => {
     setLoading(true);
@@ -44,6 +50,36 @@ export default function AdminResearchPage() {
     } catch { toast.error('Failed to update'); }
   };
 
+  const handleSubmitPdf = async () => {
+    if (!submitTitle.trim() || !submitName.trim() || !submitFile) {
+      toast.error('Title, your name, and a PDF file are required');
+      return;
+    }
+    if (submitFile.type !== 'application/pdf') {
+      toast.error('File must be a PDF');
+      return;
+    }
+    setSubmitting(true);
+    try {
+      const formData = new FormData();
+      formData.append('title', submitTitle.trim());
+      formData.append('name', submitName.trim());
+      formData.append('file', submitFile);
+      await researchApi.uploadPdf(formData);
+      toast.success('Paper submitted for review');
+      setSubmitTitle('');
+      setSubmitName('');
+      setSubmitFile(null);
+      setShowSubmitForm(false);
+      fetchResearch();
+    } catch (err: unknown) {
+      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Submission failed';
+      toast.error(msg);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   return (
     <div className="p-6 md:p-8">
       <div className="flex items-center justify-between mb-6">
@@ -51,6 +87,11 @@ export default function AdminResearchPage() {
           <h1 className="heading-lg mb-1">Research Papers</h1>
           <p className="text-text-tertiary text-sm">{total} papers</p>
         </div>
+        {canSubmit && (
+          <button onClick={() => setShowSubmitForm(true)} className="btn-primary text-sm">
+            <Plus className="w-4 h-4" /> Submit Paper
+          </button>
+        )}
       </div>
 
       <div className="flex flex-wrap gap-2 mb-6">
@@ -136,6 +177,11 @@ export default function AdminResearchPage() {
                   {selected.tags.map((tag: string) => <span key={tag} className="text-xs bg-bg-elevated text-text-tertiary px-2 py-0.5 rounded-full border border-border">{tag}</span>)}
                 </div>
               )}
+              {selected.pdfUrl && (
+                <a href={selected.pdfUrl} target="_blank" rel="noopener noreferrer" className="btn-secondary text-sm inline-flex">
+                  <Download className="w-4 h-4" /> Download PDF
+                </a>
+              )}
               {canModerate && (
                 <div className="flex flex-wrap gap-2 pt-4 border-t border-border">
                   {selected.status !== 'published' && (
@@ -158,6 +204,46 @@ export default function AdminResearchPage() {
                   </button>
                 </div>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showSubmitForm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-bg/80 backdrop-blur-sm p-4">
+          <div className="bg-bg-surface border border-border rounded-2xl w-full max-w-md shadow-2xl">
+            <div className="border-b border-border p-5 flex items-center justify-between">
+              <h2 className="font-semibold text-text-primary">Submit Paper</h2>
+              <button onClick={() => setShowSubmitForm(false)}><X className="w-5 h-5 text-text-muted" /></button>
+            </div>
+            <div className="p-5 space-y-4">
+              <div>
+                <label className="block text-xs font-medium text-text-secondary mb-1.5">Title *</label>
+                <input value={submitTitle} onChange={(e) => setSubmitTitle(e.target.value)} className="input-base" placeholder="Paper title" />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-text-secondary mb-1.5">Your Name *</label>
+                <input value={submitName} onChange={(e) => setSubmitName(e.target.value)} className="input-base" placeholder="Full name" />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-text-secondary mb-1.5">PDF File * <span className="text-text-muted font-normal">(max 8MB)</span></label>
+                <label className="flex items-center gap-2 input-base cursor-pointer text-text-secondary">
+                  <FileUp className="w-4 h-4 flex-shrink-0" />
+                  <span className="truncate">{submitFile ? submitFile.name : 'Choose a PDF file...'}</span>
+                  <input
+                    type="file"
+                    accept="application/pdf"
+                    className="hidden"
+                    onChange={(e) => setSubmitFile(e.target.files?.[0] || null)}
+                  />
+                </label>
+              </div>
+              <div className="flex gap-3 pt-2 border-t border-border">
+                <button onClick={handleSubmitPdf} disabled={submitting} className="btn-primary">
+                  {submitting ? 'Submitting...' : 'Submit for Review'}
+                </button>
+                <button onClick={() => setShowSubmitForm(false)} className="btn-secondary">Cancel</button>
+              </div>
             </div>
           </div>
         </div>
