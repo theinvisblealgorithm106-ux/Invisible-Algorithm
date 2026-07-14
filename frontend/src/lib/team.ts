@@ -33,7 +33,7 @@ export const executiveTeam: ExecutiveTeamMember[] = [
     lastName: 'Mangla',
     role: 'Executive Director of Management and Operations',
     avatar: '/team/tanya-mangla.jpeg',
-    bio: "A Grade 10 student surrounded by finance professionals since childhood, Tanya knew what GST meant before fifth grade. When the family ran out of patience for her questions, she turned to Google — and later ChatGPT and Gemini — to make sense of it all. That curiosity about both finance and AI is exactly why she connects with The Invisible Algorithm's mission.",
+    bio: "Hello, I'm Tanya Mangla, unfortunately in Grade 10 (boards are no joke guys!).\n\nSince I have a lot of family members who are CAs and finance-focused, I've always been surrounded by conversations about finance. I knew what GST meant before I was even in fifth grade.\n\nBeing around all these finance people made me curious about what they were talking about and what all those terms meant. Somehow, instead of asking them (mostly because they eventually ran out of patience with my constant questions) I started going to Google. A few years later, ChatGPT, Gemini, and other AI tools joined the list.\n\nI guess that's where my journey with both finance and AI started, and that's also why I connect with The Invisible Algorithm's goal.\n\nHonestly, there was a point where understanding finance terms and AI concepts became a headache. So I guess #usecogniflow if you're anything like me.",
   },
   {
     id: 'aarvi-malik',
