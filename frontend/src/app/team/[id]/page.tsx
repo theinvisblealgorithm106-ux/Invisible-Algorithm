@@ -4,9 +4,8 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Globe, Linkedin, Github, Twitter } from 'lucide-react';
-import { usersApi } from '@/lib/api';
-import { User } from '@/types';
-import { executiveTeam } from '@/lib/team';
+import { usersApi, teamApi } from '@/lib/api';
+import { User, TeamMember } from '@/types';
 import { getInitials, getRoleBadgeColor, cn } from '@/lib/utils';
 
 const roleLabels: Record<string, string> = {
@@ -21,31 +20,46 @@ export default function TeamMemberPage() {
   const params = useParams();
   const id = params.id as string;
 
-  const staticMember = executiveTeam.find((m) => m.id === id);
-
+  // The URL can name either an executive team member (managed in the admin
+  // panel, addressed by slug) or any platform user (addressed by id), so try
+  // the team collection first and fall back to the user lookup.
+  const [execMember, setExecMember] = useState<TeamMember | null>(null);
   const [member, setMember] = useState<User | null>(null);
-  const [loading, setLoading] = useState(!staticMember);
+  const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
 
   useEffect(() => {
-    if (staticMember) return;
+    let cancelled = false;
 
-    const fetchMember = async () => {
+    const fetchPerson = async () => {
       setLoading(true);
+      setNotFound(false);
+      setExecMember(null);
+      setMember(null);
+
       try {
-        const res = await usersApi.getUserById(id);
-        setMember(res.data.data.user ?? res.data.data);
-      } catch (err) {
-        console.error(err);
-        setNotFound(true);
+        const res = await teamApi.getBySlug(id);
+        if (!cancelled) setExecMember(res.data.data.member);
+      } catch {
+        try {
+          const res = await usersApi.getUserById(id);
+          if (!cancelled) setMember(res.data.data.user ?? res.data.data);
+        } catch (err) {
+          console.error(err);
+          if (!cancelled) setNotFound(true);
+        }
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     };
-    fetchMember();
-  }, [id, staticMember]);
 
-  const person = staticMember ?? member;
+    fetchPerson();
+    return () => { cancelled = true; };
+  }, [id]);
+
+  const person = execMember ?? member;
+  const socialLinks = execMember?.socialLinks ?? member?.socialLinks;
+  const hasSocials = !!socialLinks && Object.values(socialLinks).some(Boolean);
 
   return (
     <div className="pt-16">
@@ -73,12 +87,13 @@ export default function TeamMemberPage() {
               {/* Photo */}
               <div className="w-full">
                 {person.avatar ? (
+                  /* eslint-disable-next-line @next/next/no-img-element */
                   <img
                     src={person.avatar}
-                    alt={`${person.firstName} ${person.lastName}`}
+                    alt={[person.firstName, person.lastName].filter(Boolean).join(' ')}
                     className={cn(
                       'w-full aspect-square rounded-2xl object-cover border-2 border-border',
-                      staticMember?.avatarPosition
+                      execMember?.avatarPosition
                     )}
                   />
                 ) : (
@@ -98,21 +113,23 @@ export default function TeamMemberPage() {
 
                 <span className={
                   'badge text-xs mb-4 inline-block ' +
-                  (staticMember
+                  (execMember
                     ? 'bg-primary/10 text-primary-light border-primary/20'
-                    : getRoleBadgeColor((person as User).role))
+                    : getRoleBadgeColor((member as User).role))
                 }>
-                  {staticMember ? staticMember.role : roleLabels[(person as User).role] || (person as User).role}
+                  {execMember
+                    ? execMember.role
+                    : roleLabels[(member as User).role] || (member as User).role}
                 </span>
 
                 {person.school && (
                   <p className="text-sm text-text-tertiary mb-1">{person.school}</p>
                 )}
 
-                {!staticMember && (person as User).country && (
+                {!execMember && member?.country && (
                   <div className="flex items-center gap-1.5 text-sm text-text-muted mb-4">
                     <Globe className="w-4 h-4" />
-                    {(person as User).country}
+                    {member.country}
                   </div>
                 )}
 
@@ -120,25 +137,25 @@ export default function TeamMemberPage() {
                   <p className="text-text-secondary leading-relaxed mt-5 whitespace-pre-line">{person.bio}</p>
                 )}
 
-                {!staticMember && (person as User).socialLinks && Object.values((person as User).socialLinks!).some(Boolean) && (
+                {hasSocials && (
                   <div className="flex items-center gap-4 mt-6">
-                    {(person as User).socialLinks!.linkedin && (
-                      <a href={(person as User).socialLinks!.linkedin} target="_blank" rel="noopener noreferrer" className="text-text-muted hover:text-[#0077b5] transition-colors">
+                    {socialLinks!.linkedin && (
+                      <a href={socialLinks!.linkedin} target="_blank" rel="noopener noreferrer" className="text-text-muted hover:text-[#0077b5] transition-colors">
                         <Linkedin className="w-5 h-5" />
                       </a>
                     )}
-                    {(person as User).socialLinks!.github && (
-                      <a href={(person as User).socialLinks!.github} target="_blank" rel="noopener noreferrer" className="text-text-muted hover:text-text-primary transition-colors">
+                    {socialLinks!.github && (
+                      <a href={socialLinks!.github} target="_blank" rel="noopener noreferrer" className="text-text-muted hover:text-text-primary transition-colors">
                         <Github className="w-5 h-5" />
                       </a>
                     )}
-                    {(person as User).socialLinks!.twitter && (
-                      <a href={(person as User).socialLinks!.twitter} target="_blank" rel="noopener noreferrer" className="text-text-muted hover:text-[#1da1f2] transition-colors">
+                    {socialLinks!.twitter && (
+                      <a href={socialLinks!.twitter} target="_blank" rel="noopener noreferrer" className="text-text-muted hover:text-[#1da1f2] transition-colors">
                         <Twitter className="w-5 h-5" />
                       </a>
                     )}
-                    {(person as User).socialLinks!.website && (
-                      <a href={(person as User).socialLinks!.website} target="_blank" rel="noopener noreferrer" className="text-text-muted hover:text-text-primary transition-colors">
+                    {socialLinks!.website && (
+                      <a href={socialLinks!.website} target="_blank" rel="noopener noreferrer" className="text-text-muted hover:text-text-primary transition-colors">
                         <Globe className="w-5 h-5" />
                       </a>
                     )}

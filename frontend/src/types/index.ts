@@ -22,6 +22,28 @@ export interface User {
   createdAt: string;
 }
 
+export interface TeamMember {
+  _id: string;
+  slug: string;
+  firstName: string;
+  lastName?: string;
+  role: string;
+  school?: string;
+  avatar?: string;
+  avatarPosition?: string;
+  bio?: string;
+  socialLinks?: {
+    linkedin?: string;
+    github?: string;
+    twitter?: string;
+    website?: string;
+  };
+  order: number;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface Research {
   _id: string;
   title: string;

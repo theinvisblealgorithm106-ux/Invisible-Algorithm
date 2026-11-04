@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { Shield, Users, BookOpen, Calendar, FileText, Bell, MessageSquare, BarChart3, Home, LogOut, Eye } from 'lucide-react';
+import { Shield, Users, BookOpen, Calendar, FileText, Bell, MessageSquare, BarChart3, Home, LogOut, Eye, UserSquare2 } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { cn } from '@/lib/utils';
 import { AdminTab, canAccessAdmin, canViewTab, defaultAdminPath } from '@/lib/permissions';
@@ -16,6 +16,7 @@ const adminNav: { href: string; icon: typeof BarChart3; label: string; tab: Admi
   { href: '/admin/events', icon: Calendar, label: 'Events', tab: 'events' },
   { href: '/admin/announcements', icon: Bell, label: 'Announcements', tab: 'announcements' },
   { href: '/admin/messages', icon: MessageSquare, label: 'Messages', tab: 'messages' },
+  { href: '/admin/team', icon: UserSquare2, label: 'Team', tab: 'team' },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {

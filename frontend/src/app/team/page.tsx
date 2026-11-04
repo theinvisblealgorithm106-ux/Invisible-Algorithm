@@ -3,9 +3,8 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Globe, Linkedin, Github, Twitter } from 'lucide-react';
-import { usersApi } from '@/lib/api';
-import { User } from '@/types';
-import { executiveTeam } from '@/lib/team';
+import { usersApi, teamApi } from '@/lib/api';
+import { User, TeamMember } from '@/types';
 import { getInitials, getRoleBadgeColor, cn } from '@/lib/utils';
 
 const roleOrder: Record<string, number> = {
@@ -25,12 +24,29 @@ const roleLabels: Record<string, string> = {
 };
 
 export default function TeamPage() {
+  const [execTeam, setExecTeam] = useState<TeamMember[]>([]);
+  const [execLoading, setExecLoading] = useState(true);
   const [members, setMembers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('');
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+
+  // Executive team is managed from the admin panel (Team tab), not hardcoded.
+  useEffect(() => {
+    const fetchExecTeam = async () => {
+      try {
+        const res = await teamApi.getAll();
+        setExecTeam(res.data.data.members);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setExecLoading(false);
+      }
+    };
+    fetchExecTeam();
+  }, []);
 
   useEffect(() => {
     const fetchMembers = async () => {
@@ -91,18 +107,27 @@ export default function TeamPage() {
       </section>
 
       {/* Executive Team */}
+      {(execLoading || execTeam.length > 0) && (
       <section className="section-sm border-b border-border">
         <div className="container-page">
           <p className="label mb-3">Leadership</p>
           <h2 className="heading-md mb-8">Executive Team</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {executiveTeam.map((member) => (
-              <Link key={member.id} href={`/team/${member.id}`} className="card-hover text-center group block">
+            {execLoading ? (
+              [...Array(4)].map((_, i) => (
+                <div key={i} className="card animate-pulse">
+                  <div className="w-16 h-16 rounded-full bg-bg-elevated mx-auto mb-4" />
+                  <div className="h-4 bg-bg-elevated rounded w-2/3 mx-auto mb-2" />
+                  <div className="h-3 bg-bg-elevated rounded w-1/2 mx-auto" />
+                </div>
+              ))
+            ) : execTeam.map((member) => (
+              <Link key={member._id} href={`/team/${member.slug}`} className="card-hover text-center group block">
                 <div className="relative mx-auto w-16 h-16 mb-4">
                   {member.avatar ? (
                     <img
                       src={member.avatar}
-                      alt={`${member.firstName} ${member.lastName}`}
+                      alt={[member.firstName, member.lastName].filter(Boolean).join(' ')}
                       className={cn(
                         'w-full h-full rounded-full object-cover border-2 border-border group-hover:border-primary/50 transition-colors',
                         member.avatarPosition
@@ -133,6 +158,7 @@ export default function TeamPage() {
           </div>
         </div>
       </section>
+      )}
 
       {/* Members Grid */}
       <section className="section-sm">

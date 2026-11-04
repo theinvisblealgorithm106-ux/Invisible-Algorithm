@@ -1,3 +1,12 @@
+// SEED DATA ONLY — not what the site renders.
+//
+// The executive team now lives in MongoDB (models/TeamMember.ts) and is edited
+// from the admin panel's Team tab. This array is copied into that collection
+// once, by seedTeamIfEmpty() in lib/teamSeed.ts, on the first request to
+// /api/team against an empty collection.
+//
+// Editing a bio here has no effect on a database that has already been seeded;
+// edit it in the admin panel instead.
 export interface ExecutiveTeamMember {
   id: string;
   firstName: string;
@@ -34,15 +43,6 @@ export const executiveTeam: ExecutiveTeamMember[] = [
     role: 'Executive Director of Management and Operations',
     avatar: '/team/tanya-mangla.jpeg',
     bio: "Hello, I'm Tanya Mangla, unfortunately in Grade 10 (boards are no joke guys!).\n\nSince I have a lot of family members who are CAs and finance-focused, I've always been surrounded by conversations about finance. I knew what GST meant before I was even in fifth grade.\n\nBeing around all these finance people made me curious about what they were talking about and what all those terms meant. Somehow, instead of asking them (mostly because they eventually ran out of patience with my constant questions) I started going to Google. A few years later, ChatGPT, Gemini, and other AI tools joined the list.\n\nI guess that's where my journey with both finance and AI started, and that's also why I connect with The Invisible Algorithm's goal.\n\nHonestly, there was a point where understanding finance terms and AI concepts became a headache. So I guess #usecogniflow if you're anything like me.",
-  },
-  {
-    id: 'aarvi-malik',
-    firstName: 'Aarvi',
-    lastName: 'Malik',
-    role: 'Executive Director of Social Media and Outreach',
-    school: 'Bal Bharati Public School, Pitampura',
-    avatar: '/team/aarvi-malik.jpeg',
-    bio: "Hello everyone!\n\nI'm Aarvi Malik, a Grade 10 student at Bal Bharati Public School, Pitampura, and the Executive Head of Social Media and Outreach at The Invisible Algorithm.\n\nI was always curious about what my father used to work upon on his computer, knowing it was something related to finance.  My interest in Artificial Intelligence led me to participate in my school's hackathon, where my team secured first place.\n\nThat experience showed me the incredible potential of young minds, seeing students use critical thinking and technology to solve real-world problems while working together inspired me to be a part of The Invisible Algorithm.\n\nI've always had a spark for Public Speaking , standing in front of the mirror when I was little and randomly yapping about various topics😛 I started speaking on stage when I was 3 , and after continuous hardwork ,9 year old Aarvi won Best Speaker from India's ministry of education and eventually was the youngest from India to win an honourable mention for The GOI Peace Foundation , Japan International Essay Writing Competition. I've been the Secretary General in my school's prestigious Inter School Model United Nations Conference and I have also been the host for various conferences and events.\n\nThrough Workshops at The Invisible Algorithm,I aim to connect with brilliant learners globally, sharing my experiences with them and helping them build new skills learning about AI, Business, Finance and Technology. I believe that learning is most powerful when ideas are shared and explored together. \n\nI look forward to meeting you all<3",
   },
   {
     id: 'saanvi',

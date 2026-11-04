@@ -131,6 +131,16 @@ export const contactApi = {
   getSubscribers: () => api.get('/contact/newsletter/subscribers'),
 };
 
+export const teamApi = {
+  // Returns active members for the public team page; admins with Team access
+  // also get hidden ones.
+  getAll: () => api.get('/team'),
+  getBySlug: (slug: string) => api.get(`/team/${slug}`),
+  create: (data: Record<string, unknown>) => api.post('/team', data),
+  update: (id: string, data: Record<string, unknown>) => api.patch(`/team/${id}`, data),
+  delete: (id: string) => api.delete(`/team/${id}`),
+};
+
 export const partnershipsApi = {
   getAll: (params?: Record<string, unknown>) => api.get('/partnerships', { params }),
   getAllAdmin: (params?: Record<string, unknown>) => api.get('/partnerships/all', { params }),
