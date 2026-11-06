@@ -12,6 +12,7 @@ export const ADMIN_TABS = [
   'announcements',
   'messages',
   'team',
+  'gallery',
 ] as const;
 
 export type AdminTab = (typeof ADMIN_TABS)[number];

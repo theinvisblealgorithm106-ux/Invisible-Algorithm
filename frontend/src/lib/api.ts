@@ -141,6 +141,15 @@ export const teamApi = {
   delete: (id: string) => api.delete(`/team/${id}`),
 };
 
+export const galleryApi = {
+  // Returns public items plus the album list; admins with Gallery access also
+  // get hidden ones.
+  getAll: (params?: Record<string, unknown>) => api.get('/gallery', { params }),
+  create: (data: Record<string, unknown>) => api.post('/gallery', data),
+  update: (id: string, data: Record<string, unknown>) => api.patch(`/gallery/${id}`, data),
+  delete: (id: string) => api.delete(`/gallery/${id}`),
+};
+
 export const partnershipsApi = {
   getAll: (params?: Record<string, unknown>) => api.get('/partnerships', { params }),
   getAllAdmin: (params?: Record<string, unknown>) => api.get('/partnerships/all', { params }),

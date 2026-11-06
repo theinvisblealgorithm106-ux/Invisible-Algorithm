@@ -44,6 +44,22 @@ export interface TeamMember {
   updatedAt: string;
 }
 
+export interface GalleryItem {
+  _id: string;
+  title?: string;
+  caption?: string;
+  image: string;
+  imageFileId?: string;
+  album?: string;
+  people: string[];
+  takenAt?: string;
+  order: number;
+  isPublic: boolean;
+  featured: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface Research {
   _id: string;
   title: string;

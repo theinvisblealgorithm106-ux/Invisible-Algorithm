@@ -28,7 +28,7 @@ interface EventForm {
 }
 
 const defaultForm: EventForm = {
-  title: '', description: '', type: 'workshop', format: 'virtual', status: 'upcoming',
+  title: '', description: '', type: 'workshop', format: 'virtual', status: 'scheduled',
   startDate: '', endDate: '', timezone: 'UTC', location: '', virtualLink: '',
   capacity: '', requiresRegistration: true, isPublic: true, featured: false, tags: '',
 };
@@ -230,9 +230,17 @@ export default function AdminEventsPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-medium text-text-secondary mb-1.5">Status</label>
-                  <select value={form.status} onChange={e => setForm({ ...form, status: e.target.value })} className="input-base">
-                    {['upcoming', 'ongoing', 'completed', 'cancelled'].map(s => <option key={s} value={s}>{s}</option>)}
+                  <select
+                    value={form.status === 'cancelled' ? 'cancelled' : 'scheduled'}
+                    onChange={e => setForm({ ...form, status: e.target.value === 'cancelled' ? 'cancelled' : 'scheduled' })}
+                    className="input-base"
+                  >
+                    <option value="scheduled">Scheduled (automatic)</option>
+                    <option value="cancelled">Cancelled</option>
                   </select>
+                  <p className="text-[11px] text-text-muted mt-1">
+                    Upcoming / ongoing / completed is worked out from the dates above.
+                  </p>
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-text-secondary mb-1.5">Capacity</label>

@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import { connectDB } from '@/lib/mongodb';
 import { Event } from '@/models/Event';
 import { requireAdminTabWrite } from '@/lib/auth-helpers';
+import { withDerivedStatus } from '@/lib/eventStatus';
 
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -11,7 +12,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
     const isObjectId = mongoose.Types.ObjectId.isValid(id);
     const event = await Event.findOne(isObjectId ? { _id: id } : { slug: id });
     if (!event) return NextResponse.json({ success: false, message: 'Not found' }, { status: 404 });
-    return NextResponse.json({ success: true, data: { event } });
+    return NextResponse.json({ success: true, data: { event: withDerivedStatus(event) } });
   } catch {
     return NextResponse.json({ success: false, message: 'Server error' }, { status: 500 });
   }
@@ -25,7 +26,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     const body = await req.json();
     const event = await Event.findByIdAndUpdate(id, body, { new: true, runValidators: true });
     if (!event) return NextResponse.json({ success: false, message: 'Not found' }, { status: 404 });
-    return NextResponse.json({ success: true, data: { event } });
+    return NextResponse.json({ success: true, data: { event: withDerivedStatus(event) } });
   } catch (err) {
     if (err instanceof NextResponse) return err;
     return NextResponse.json({ success: false, message: 'Server error' }, { status: 500 });

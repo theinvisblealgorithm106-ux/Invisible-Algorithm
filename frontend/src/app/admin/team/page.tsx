@@ -1,9 +1,10 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Plus, Trash2, Edit, X, ArrowUp, ArrowDown, EyeOff, ExternalLink } from 'lucide-react';
+import { Plus, Trash2, Edit, X, ArrowUp, ArrowDown, EyeOff, ExternalLink, Upload, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { teamApi } from '@/lib/api';
+import { uploadImage } from '@/lib/compressImage';
 import { TeamMember } from '@/types';
 import { getInitials, cn } from '@/lib/utils';
 import { useAuthStore } from '@/store/authStore';
@@ -73,6 +74,7 @@ export default function AdminTeamPage() {
   const [form, setForm] = useState<TeamForm>(defaultForm);
   const [saving, setSaving] = useState(false);
   const [reordering, setReordering] = useState(false);
+  const [uploading, setUploading] = useState(false);
 
   const fetchMembers = useCallback(async () => {
     setLoading(true);
@@ -111,6 +113,22 @@ export default function AdminTeamPage() {
       isActive: member.isActive,
     });
     setShowForm(true);
+  };
+
+  const handlePhotoSelect = async (file: File | undefined) => {
+    if (!file) return;
+    setUploading(true);
+    try {
+      // Downscales in the browser first, so phone photos don't exceed the
+      // 4MB server limit.
+      const url = await uploadImage(file);
+      setForm((prev) => ({ ...prev, avatar: url }));
+      toast.success('Photo uploaded');
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Upload failed');
+    } finally {
+      setUploading(false);
+    }
   };
 
   const handleSave = async () => {
@@ -372,10 +390,51 @@ export default function AdminTeamPage() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-medium text-text-secondary mb-1.5">Photo URL or path</label>
-                  <input value={form.avatar} onChange={(e) => setForm({ ...form, avatar: e.target.value })} className="input-base" placeholder="/team/name.jpeg" />
-                  <p className="text-[11px] text-text-muted mt-1">
-                    A file already in <code>public/team/</code>, or any full https URL.
+                  <label className="block text-xs font-medium text-text-secondary mb-1.5">Photo</label>
+                  <div className="flex items-start gap-3">
+                    {form.avatar ? (
+                      /* eslint-disable-next-line @next/next/no-img-element */
+                      <img
+                        src={form.avatar}
+                        alt=""
+                        className={cn('w-16 h-16 rounded-full object-cover border border-border shrink-0', form.avatarPosition)}
+                      />
+                    ) : (
+                      <div className="w-16 h-16 rounded-full bg-bg-elevated border border-border shrink-0" />
+                    )}
+                    <div className="flex-1 min-w-0 space-y-2">
+                      <label className={cn('btn-secondary text-xs cursor-pointer inline-flex', uploading && 'opacity-60 pointer-events-none')}>
+                        {uploading
+                          ? <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Uploading...</>
+                          : <><Upload className="w-3.5 h-3.5" /> {form.avatar ? 'Replace photo' : 'Upload photo'}</>}
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          disabled={uploading}
+                          onChange={(e) => { handlePhotoSelect(e.target.files?.[0]); e.target.value = ''; }}
+                        />
+                      </label>
+                      {form.avatar && (
+                        <button
+                          type="button"
+                          onClick={() => setForm({ ...form, avatar: '' })}
+                          className="btn-ghost text-xs text-error hover:bg-error/10 ml-2"
+                        >
+                          Remove
+                        </button>
+                      )}
+                      <input
+                        value={form.avatar}
+                        onChange={(e) => setForm({ ...form, avatar: e.target.value })}
+                        className="input-base text-xs"
+                        placeholder="...or paste a path / URL"
+                      />
+                    </div>
+                  </div>
+                  <p className="text-[11px] text-text-muted mt-1.5">
+                    Uploads are resized automatically. You can also point at a file in
+                    <code> public/team/</code> or any https URL.
                   </p>
                 </div>
                 <div>

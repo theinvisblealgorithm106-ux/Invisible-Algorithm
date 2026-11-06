@@ -34,6 +34,10 @@ interface Event {
   tags: string[];
 }
 
+// Toggle to switch registration back to the built-in mini form.
+const USE_GOOGLE_FORM_REGISTRATION = true;
+const GOOGLE_FORM_URL = 'https://docs.google.com/forms/d/1EtnOzkdA_NysvbfzzJYVZIy5Nc_XLwqgVHNKqImhnqQ/viewform';
+
 export default function EventDetailPage() {
   const { slug } = useParams() as { slug: string };
   const [event, setEvent] = useState<Event | null>(null);
@@ -209,13 +213,25 @@ export default function EventDetailPage() {
 
                 {event.requiresRegistration && !isClosed && (
                   <>
-                    {!showForm ? (
-                      <button
-                        onClick={() => setShowForm(true)}
-                        disabled={isFull}
+                    {isFull ? (
+                      <button disabled className="btn-primary w-full justify-center">
+                        Event Full
+                      </button>
+                    ) : USE_GOOGLE_FORM_REGISTRATION ? (
+                      <a
+                        href={GOOGLE_FORM_URL}
+                        target="_blank"
+                        rel="noopener noreferrer"
                         className="btn-primary w-full justify-center"
                       >
-                        {isFull ? 'Event Full' : 'Register Now'}
+                        Register Now
+                      </a>
+                    ) : !showForm ? (
+                      <button
+                        onClick={() => setShowForm(true)}
+                        className="btn-primary w-full justify-center"
+                      >
+                        Register Now
                       </button>
                     ) : (
                       <form onSubmit={handleRegister} className="space-y-3">

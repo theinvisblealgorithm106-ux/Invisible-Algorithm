@@ -28,7 +28,15 @@ const EventSchema = new Schema<IEvent>({
   description: { type: String, required: true },
   type: { type: String, required: true, enum: ['workshop', 'seminar', 'conference', 'webinar', 'competition', 'meetup', 'other'] },
   format: { type: String, enum: ['in-person', 'virtual', 'hybrid'], default: 'virtual' },
-  status: { type: String, enum: ['upcoming', 'ongoing', 'completed', 'cancelled'], default: 'upcoming' },
+  // Only 'scheduled' vs 'cancelled' is meaningful: upcoming/ongoing/completed
+  // are derived from startDate/endDate at read time (see lib/eventStatus.ts).
+  // The three legacy values stay in the enum so documents written before that
+  // change still validate; they're all treated as "not cancelled".
+  status: {
+    type: String,
+    enum: ['scheduled', 'cancelled', 'upcoming', 'ongoing', 'completed'],
+    default: 'scheduled',
+  },
   startDate: { type: Date, required: true },
   endDate: { type: Date, required: true },
   location: String,

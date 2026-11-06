@@ -1,5 +1,6 @@
 import { google } from 'googleapis';
 import { randomUUID } from 'crypto';
+import { Readable } from 'stream';
 
 const FOLDER_ID = process.env.GOOGLE_DRIVE_FOLDER_ID!;
 
@@ -108,4 +109,85 @@ export async function deletePdfFromDrive(fileId: string): Promise<void> {
   await drive.files.delete({ fileId }).catch(() => {
     // Already gone or inaccessible — not fatal, the DB record is the source of truth.
   });
+}
+
+
+// ---------------------------------------------------------------------------
+// Images (team photos, gallery)
+// ---------------------------------------------------------------------------
+
+// Images take a different route from research PDFs. A PDF can be 64MB, so it
+// has to go browser-direct to Drive and be served by redirecting. Images are
+// small and must render inside an <img> tag, where Drive's own URLs are
+// unreliable (the uc?export endpoints redirect to interstitials and are rate
+// limited for hotlinking). So images are uploaded *through* this server and
+// served back through it too — which also means they need no public Drive
+// permission at all, unlike the PDFs.
+//
+// That makes Vercel's 4.5MB request-body cap the binding constraint, hence the
+// 4MB ceiling below. The browser downscales before uploading (see
+// lib/compressImage.ts), so real photos land far under it.
+export const MAX_IMAGE_BYTES = 4 * 1024 * 1024;
+
+export const ALLOWED_IMAGE_MIME_TYPES = [
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+  'image/gif',
+  'image/avif',
+] as const;
+
+const MIME_EXTENSIONS: Record<string, string> = {
+  'image/jpeg': 'jpg',
+  'image/png': 'png',
+  'image/webp': 'webp',
+  'image/gif': 'gif',
+  'image/avif': 'avif',
+};
+
+export function isAllowedImageMimeType(mimeType: string): boolean {
+  return (ALLOWED_IMAGE_MIME_TYPES as readonly string[]).includes(mimeType);
+}
+
+// Uploads image bytes to the same Drive folder and returns the new file id.
+export async function uploadImageToDrive(data: Buffer, mimeType: string): Promise<string> {
+  const drive = getDriveClient();
+  const ext = MIME_EXTENSIONS[mimeType] ?? 'bin';
+
+  const res = await drive.files.create({
+    requestBody: { name: `${randomUUID()}.${ext}`, parents: [FOLDER_ID] },
+    media: { mimeType, body: Readable.from(data) },
+    fields: 'id',
+  });
+
+  const fileId = res.data.id;
+  if (!fileId) throw new Error('Drive did not return a file id for the uploaded image');
+  return fileId;
+}
+
+// Reads an image back out of Drive so it can be proxied to the browser.
+export async function getDriveImage(
+  fileId: string
+): Promise<{ data: Buffer; mimeType: string } | null> {
+  const drive = getDriveClient();
+  try {
+    const meta = await drive.files.get({ fileId, fields: 'mimeType' });
+    const mimeType = meta.data.mimeType || 'application/octet-stream';
+    if (!mimeType.startsWith('image/')) return null;
+
+    const file = await drive.files.get(
+      { fileId, alt: 'media' },
+      { responseType: 'arraybuffer' }
+    );
+    return { data: Buffer.from(file.data as ArrayBuffer), mimeType };
+  } catch {
+    return null;
+  }
+}
+
+// Same forgiving semantics as deletePdfFromDrive: the DB row is the source of
+// truth, so a missing Drive file must not fail the caller.
+export async function deleteImageFromDrive(fileId: string): Promise<void> {
+  const drive = getDriveClient();
+  await drive.files.delete({ fileId }).catch(() => {});
 }
