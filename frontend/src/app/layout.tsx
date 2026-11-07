@@ -13,11 +13,11 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: {
-    default: 'The Invisible Algorithm — International Student Technology Non-Profit',
+    default: 'The Invisible Algorithm — Student-Led Technology, Research & Social Impact',
     template: '%s | The Invisible Algorithm',
   },
   description:
-    'The Invisible Algorithm is an international student-led non-profit focused on AI, machine learning, computer science, financial literacy, and technology education. Join our global community of curious students.',
+    'The Invisible Algorithm is an international student-led organization focused on AI, machine learning, computer science, financial literacy, and technology education, with social work and volunteer programs in our members\u2019 own communities. Join our global community of curious students.',
   keywords: [
     'artificial intelligence',
     'machine learning',
@@ -26,7 +26,9 @@ export const metadata: Metadata = {
     'financial literacy',
     'research',
     'computer science',
-    'non-profit',
+    'social work',
+    'volunteering',
+    'community service',
     'international',
   ],
   authors: [{ name: 'The Invisible Algorithm' }],
@@ -35,14 +37,14 @@ export const metadata: Metadata = {
     locale: 'en_US',
     url: process.env.NEXT_PUBLIC_SITE_URL,
     siteName: 'The Invisible Algorithm',
-    title: 'The Invisible Algorithm — International Student Technology Non-Profit',
+    title: 'The Invisible Algorithm — Student-Led Technology, Research & Social Impact',
     description:
-      'Join a global community of students learning, researching, and building the future of AI and technology.',
+      'Join a global community of students learning, researching, volunteering, and building the future of AI and technology.',
   },
   twitter: {
     card: 'summary_large_image',
     title: 'The Invisible Algorithm',
-    description: 'International student-led technology and business non-profit.',
+    description: 'International student-led community for technology, business, research, and social work.',
   },
   robots: {
     index: true,

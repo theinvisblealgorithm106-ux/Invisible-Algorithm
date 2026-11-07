@@ -11,6 +11,7 @@ const footerLinks = {
   ],
   Community: [
     { href: '/join', label: 'Join Us' },
+    { href: '/about#social-impact', label: 'Volunteer' },
     { href: '/auth/login', label: 'Member Login' },
     { href: '/contact', label: 'Contact' },
   ],
@@ -36,7 +37,7 @@ export default function Footer() {
               </span>
             </Link>
             <p className="text-text-tertiary text-sm leading-relaxed max-w-sm">
-              An international student-led non-profit building the next generation of leaders in AI, technology, and business through education, research, and global collaboration.
+              An international student-led organization building the next generation of leaders in AI, technology, and business through education, research, social work, and global collaboration.
             </p>
             <div className="flex items-center gap-3 mt-6">
               <a

@@ -91,7 +91,7 @@ export interface Event {
   title: string;
   slug: string;
   description: string;
-  type: 'workshop' | 'seminar' | 'conference' | 'webinar' | 'competition' | 'meetup' | 'other';
+  type: 'workshop' | 'seminar' | 'conference' | 'webinar' | 'competition' | 'meetup' | 'volunteering' | 'other';
   format: 'in-person' | 'virtual' | 'hybrid';
   status: 'upcoming' | 'ongoing' | 'completed' | 'cancelled';
   startDate: string;

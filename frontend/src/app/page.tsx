@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { ArrowRight, Brain, BookOpen, Users, Globe, Zap, TrendingUp, Award, ChevronRight } from 'lucide-react';
+import { ArrowRight, Brain, BookOpen, Users, Globe, Zap, TrendingUp, Award, ChevronRight, HeartHandshake } from 'lucide-react';
 
 export const metadata: Metadata = {
   title: 'The Invisible Algorithm — Where Students Shape the Future of Technology',
@@ -21,6 +21,7 @@ const pillars = [
     border: 'border-primary/20',
     iconBg: 'bg-primary text-white',
     tag: 'bg-primary/10 text-primary border-primary/20',
+    span: '',
   },
   {
     icon: TrendingUp,
@@ -30,6 +31,7 @@ const pillars = [
     border: 'border-accent-yellow/30',
     iconBg: 'bg-accent-yellow text-white',
     tag: 'bg-accent-yellow/10 text-accent-yellow border-accent-yellow/30',
+    span: '',
   },
   {
     icon: BookOpen,
@@ -39,6 +41,7 @@ const pillars = [
     border: 'border-accent/20',
     iconBg: 'bg-accent text-white',
     tag: 'bg-accent/10 text-accent border-accent/20',
+    span: '',
   },
   {
     icon: Globe,
@@ -48,6 +51,17 @@ const pillars = [
     border: 'border-accent-green/20',
     iconBg: 'bg-accent-green text-white',
     tag: 'bg-accent-green/10 text-accent-green border-accent-green/20',
+    span: '',
+  },
+  {
+    icon: HeartHandshake,
+    title: 'Social Work & Volunteering',
+    description: 'Put our skills to work for the people around us — free classes for under-resourced schools, community drives, digital literacy outreach, and pro-bono tech help. Volunteer tasks are open to every member, from a single afternoon to a term-long project.',
+    gradient: 'from-accent-cyan/15 to-accent-green/10',
+    border: 'border-accent-cyan/20',
+    iconBg: 'bg-accent-cyan text-white',
+    tag: 'bg-accent-cyan/10 text-accent-cyan border-accent-cyan/20',
+    span: 'md:col-span-2',
   },
 ];
 
@@ -56,6 +70,7 @@ const features = [
   { icon: Award, text: 'Published academic work' },
   { icon: Zap, text: 'Live workshops & seminars' },
   { icon: Globe, text: 'Interschool partnerships' },
+  { icon: HeartHandshake, text: 'Community volunteer tasks' },
 ];
 
 export default function HomePage() {
@@ -88,11 +103,6 @@ export default function HomePage() {
         />
 
         <div className="container-page relative py-24 md:py-36 text-center w-full">
-          <div className="inline-flex items-center gap-2 bg-white border border-primary/30 rounded-full px-5 py-2.5 mb-8 text-xs font-semibold text-primary shadow-sm shadow-primary/10 animate-bounce-in">
-            <span className="w-2 h-2 rounded-full bg-primary animate-pulse-slow" />
-            International Student Technology Non-Profit
-          </div>
-
           <h1 className="heading-display max-w-4xl mx-auto text-balance mb-6">
             Where Curious Students{' '}
             <span className="gradient-text">Shape the Future</span>{' '}
@@ -100,7 +110,7 @@ export default function HomePage() {
           </h1>
 
           <p className="text-text-secondary text-lg md:text-xl max-w-2xl mx-auto leading-relaxed mb-10">
-            The Invisible Algorithm is a global community of students learning, researching, and collaborating across AI, machine learning, computer science, and financial technology.
+            The Invisible Algorithm is a global community of students learning, researching, and collaborating across AI, machine learning, computer science, and financial technology — and volunteering to bring that work back to their own communities.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
@@ -139,7 +149,7 @@ export default function HomePage() {
               What We Do
             </span>
             <h2 className="heading-xl max-w-2xl mx-auto">
-              Four pillars of student-driven innovation
+              Five pillars of student-driven innovation
             </h2>
           </div>
 
@@ -149,7 +159,7 @@ export default function HomePage() {
               return (
                 <div
                   key={pillar.title}
-                  className={`card-hover bg-gradient-to-br ${pillar.gradient} ${pillar.border}`}
+                  className={`card-hover bg-gradient-to-br ${pillar.gradient} ${pillar.border} ${pillar.span}`}
                 >
                   <div className={`w-12 h-12 rounded-2xl ${pillar.iconBg} flex items-center justify-center mb-5 shadow-md`}>
                     <Icon className="w-6 h-6" />
@@ -176,7 +186,7 @@ export default function HomePage() {
           <div className="flex flex-wrap justify-center gap-6 md:gap-10">
             {features.map((f, i) => {
               const Icon = f.icon;
-              const colors = ['text-primary', 'text-accent-green', 'text-accent', 'text-accent-yellow'];
+              const colors = ['text-primary', 'text-accent-green', 'text-accent', 'text-accent-yellow', 'text-accent-cyan'];
               return (
                 <div key={f.text} className="flex items-center gap-2.5 text-text-secondary text-sm font-medium">
                   <div className={`w-8 h-8 rounded-lg bg-white shadow-sm border border-border flex items-center justify-center ${colors[i]}`}>
@@ -211,7 +221,7 @@ export default function HomePage() {
                 The Invisible Algorithm was founded on a simple belief: students everywhere — regardless of their school or country — deserve access to world-class education, research opportunities, and a network of peers who share their curiosity.
               </p>
               <p className="text-text-secondary leading-relaxed mb-8">
-                We organize workshops, research collaborations, publications, and educational programs that connect high school and university students across more than 30 schools.
+                We organize workshops, research collaborations, publications, educational programs, and social work and volunteer drives that connect high school and university students across more than 30 schools.
               </p>
               <div className="flex gap-4 flex-wrap">
                 <Link href="/about" className="btn-primary">
@@ -227,6 +237,7 @@ export default function HomePage() {
               {[
                 { title: 'Student Research Program', desc: 'Conduct and publish original research with mentorship from experienced researchers.', color: 'border-l-4 border-primary', tag: 'Research', tagColor: 'bg-primary/10 text-primary border-primary/20', href: '/research' },
                 { title: 'Global Workshop Series', desc: 'Monthly live workshops covering AI, ML, finance, and CS fundamentals.', color: 'border-l-4 border-accent-green', tag: 'Events', tagColor: 'bg-accent-green/10 text-accent-green border-accent-green/20', href: '/events' },
+                { title: 'Social Work & Volunteer Tasks', desc: 'Community service drives, peer tutoring, and volunteer tasks members can pick up and lead.', color: 'border-l-4 border-accent-cyan', tag: 'Volunteering', tagColor: 'bg-accent-cyan/10 text-accent-cyan border-accent-cyan/20', href: '/events' },
                 { title: 'School Partnerships', desc: 'Partner your school or university with our international network.', color: 'border-l-4 border-accent-yellow', tag: 'Partnerships', tagColor: 'bg-accent-yellow/10 text-accent-yellow border-accent-yellow/30', href: null },
               ].map((item) => {
                 const content = (

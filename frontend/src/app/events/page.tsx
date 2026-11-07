@@ -74,7 +74,7 @@ export default function EventsPage() {
             <div>
               <h1 className="heading-xl mb-3">Workshops & Events</h1>
               <p className="text-text-secondary max-w-xl">
-                Live workshops, seminars, webinars, and competitions organized by The Invisible Algorithm for our global community.
+                Live workshops, seminars, webinars, competitions, and social work and volunteer tasks organized by The Invisible Algorithm for our global community.
               </p>
             </div>
             <div className="text-right">

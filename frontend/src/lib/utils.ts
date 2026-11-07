@@ -71,6 +71,7 @@ export const EVENT_TYPES = [
   { value: 'webinar', label: 'Webinar' },
   { value: 'competition', label: 'Competition' },
   { value: 'meetup', label: 'Meetup' },
+  { value: 'volunteering', label: 'Volunteering & Social Work' },
   { value: 'other', label: 'Other' },
 ];
 
@@ -91,6 +92,8 @@ export const INTERESTS = [
   'Economics',
   'Mathematics',
   'Statistics',
+  'Social Work',
+  'Volunteering & Community Service',
 ];
 
 export const GRADE_LEVELS = [

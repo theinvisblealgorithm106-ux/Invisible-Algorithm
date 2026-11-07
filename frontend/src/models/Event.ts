@@ -26,7 +26,7 @@ const EventSchema = new Schema<IEvent>({
   title: { type: String, required: true, trim: true },
   slug: { type: String, unique: true },
   description: { type: String, required: true },
-  type: { type: String, required: true, enum: ['workshop', 'seminar', 'conference', 'webinar', 'competition', 'meetup', 'other'] },
+  type: { type: String, required: true, enum: ['workshop', 'seminar', 'conference', 'webinar', 'competition', 'meetup', 'volunteering', 'other'] },
   format: { type: String, enum: ['in-person', 'virtual', 'hybrid'], default: 'virtual' },
   // Only 'scheduled' vs 'cancelled' is meaningful: upcoming/ongoing/completed
   // are derived from startDate/endDate at read time (see lib/eventStatus.ts).

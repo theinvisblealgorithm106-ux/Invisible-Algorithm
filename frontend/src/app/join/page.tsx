@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { ArrowRight, Check, Users, BookOpen, Globe, Zap } from 'lucide-react';
+import { ArrowRight, Check, Users, BookOpen, Globe, Zap, HeartHandshake } from 'lucide-react';
 import { applicationsApi } from '@/lib/api';
 import { INTERESTS, GRADE_LEVELS, REFERRAL_SOURCES, cn } from '@/lib/utils';
 import toast from 'react-hot-toast';
@@ -33,6 +33,7 @@ const benefits = [
   { icon: BookOpen, text: 'Access research programs and publish original work' },
   { icon: Globe, text: 'Connect with an international network of peers and mentors' },
   { icon: Zap, text: 'Participate in exclusive workshops, seminars, and competitions' },
+  { icon: HeartHandshake, text: 'Take on social work and volunteer tasks with real community impact' },
 ];
 
 export default function JoinPage() {
@@ -108,7 +109,7 @@ export default function JoinPage() {
               <p className="label mb-3">Join Us</p>
               <h1 className="heading-xl mb-5">Become a member of The Invisible Algorithm</h1>
               <p className="text-text-secondary leading-relaxed mb-8">
-                We welcome curious, driven students from anywhere in the world. Whether you're passionate about AI, finance, computer science, or all three — there's a place for you here.
+                We welcome curious, driven students from anywhere in the world. Whether you're passionate about AI, finance, computer science, or giving back through social work — there's a place for you here.
               </p>
 
               <div className="space-y-4 mb-8">

@@ -1,10 +1,10 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { ArrowRight, Target, Eye, Heart, Users, Globe, BookOpen, Lightbulb } from 'lucide-react';
+import { ArrowRight, Target, Eye, Heart, Users, Globe, BookOpen, Lightbulb, HeartHandshake, HelpingHand, GraduationCap, Sprout } from 'lucide-react';
 
 export const metadata: Metadata = {
   title: 'About',
-  description: 'Learn about The Invisible Algorithm — our mission, vision, values, and the story behind our international student community.',
+  description: 'Learn about The Invisible Algorithm — our mission, vision, values, social work, and the story behind our international student community.',
 };
 
 const values = [
@@ -40,6 +40,29 @@ const values = [
   },
 ];
 
+const volunteerWork = [
+  {
+    icon: GraduationCap,
+    title: 'Teaching & Tutoring',
+    desc: 'Free coding, AI, and financial literacy classes for students at under-resourced schools and community centres.',
+  },
+  {
+    icon: HeartHandshake,
+    title: 'Community Drives',
+    desc: 'Book, device, and fundraising drives that put learning resources directly into the hands of students who need them.',
+  },
+  {
+    icon: HelpingHand,
+    title: 'Pro-Bono Tech Help',
+    desc: 'Websites, data work, and digital tooling built by our members for local community groups and charities at no cost.',
+  },
+  {
+    icon: Sprout,
+    title: 'Digital Literacy Outreach',
+    desc: 'Sessions for parents, elders, and first-time internet users on staying safe, capable, and confident online.',
+  },
+];
+
 const focus = [
   { area: 'Artificial Intelligence', desc: 'Foundation models, neural architectures, AI safety, and applied AI systems.' },
   { area: 'Machine Learning', desc: 'Supervised and unsupervised learning, reinforcement learning, and ML engineering.' },
@@ -62,7 +85,7 @@ export default function AboutPage() {
             <span className="gradient-text">right now</span>
           </h1>
           <p className="text-text-secondary text-lg max-w-2xl mx-auto leading-relaxed">
-            The Invisible Algorithm is a student-led international non-profit dedicated to making world-class education, research, and collaboration accessible to every curious student on the planet.
+            The Invisible Algorithm is a student-led international organization dedicated to making world-class education, research, and collaboration accessible to every curious student on the planet — and to giving back through social work and volunteering.
           </p>
         </div>
       </section>
@@ -113,8 +136,51 @@ export default function AboutPage() {
                 Since our founding, we've grown into a network spanning 10+ schools, with members publishing original research, organizing international workshops, and building real skills in AI, machine learning, data science, and finance.
               </p>
               <p>
-                Our work is done entirely by students, for students. Every event, every publication, every partnership is driven by young people who believe in the power of education and collaboration.
+                Along the way we learned that learning this work and sharing it are the same job. So our members also teach, mentor, and volunteer in their own cities — because technology is only worth understanding if it reaches the people around you.
               </p>
+              <p>
+                Our work is done entirely by students, for students. Every event, every publication, every partnership, and every volunteer task is driven by young people who believe in the power of education and collaboration.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Social Work & Volunteering */}
+      <section id="social-impact" className="section scroll-mt-24">
+        <div className="container-page">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-14 items-start">
+            <div>
+              <p className="label mb-4">Social Impact</p>
+              <h2 className="heading-xl mb-6">Social work &amp; volunteering</h2>
+              <div className="prose-custom space-y-5">
+                <p>
+                  Alongside our research and workshops, our members run social work and volunteer programs in their own cities — teaching, mentoring, and building for communities that rarely get first access to new technology.
+                </p>
+                <p>
+                  Volunteer tasks are open to every member. Some take a single afternoon, others run for a whole term, and all of them are organized the same way our workshops are — posted, signed up for, and led by students.
+                </p>
+              </div>
+              <div className="flex flex-col sm:flex-row gap-4 mt-8">
+                <Link href="/events" className="btn-primary">
+                  See Volunteer Tasks <ArrowRight className="w-4 h-4" />
+                </Link>
+                <Link href="/contact" className="btn-secondary">
+                  Partner With Us
+                </Link>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {volunteerWork.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <div key={item.title} className="card-hover">
+                    <Icon className="w-5 h-5 text-accent-green mb-4" />
+                    <h3 className="font-semibold text-text-primary mb-2">{item.title}</h3>
+                    <p className="text-sm text-text-secondary">{item.desc}</p>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>
