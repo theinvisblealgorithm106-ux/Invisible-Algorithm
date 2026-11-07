@@ -67,6 +67,16 @@ export async function compressImage(
 export async function uploadImage(file: File, compress = true): Promise<string> {
   const prepared = compress ? await compressImage(file) : file;
 
+  // Catch the unshrinkable case locally rather than at the edge, where the
+  // rejection arrives as an opaque non-JSON 413.
+  const MAX_BYTES = 4 * 1024 * 1024;
+  if (prepared.size > MAX_BYTES) {
+    throw new Error(
+      `Image is ${(prepared.size / 1024 / 1024).toFixed(1)}MB, over the 4MB limit, and couldn't be `
+      + 'compressed automatically. Convert it to JPEG or PNG and try again.'
+    );
+  }
+
   const body = new FormData();
   body.append('file', prepared);
 
@@ -81,8 +91,22 @@ export async function uploadImage(file: File, compress = true): Promise<string> 
   });
 
   const json = await res.json().catch(() => null);
+
   if (!res.ok || !json?.success) {
-    throw new Error(json?.message || 'Upload failed');
+    // A non-JSON body means the request never reached the route handler.
+    // The usual cause is Vercel rejecting it at the edge for exceeding the
+    // 4.5MB body cap — which happens when compression fell back to the
+    // original file (e.g. an HEIC the browser can't decode).
+    if (!json) {
+      if (res.status === 413) {
+        throw new Error(
+          `Image is too large (${(prepared.size / 1024 / 1024).toFixed(1)}MB after processing). `
+          + 'Try a smaller photo, or save it as JPEG/PNG first.'
+        );
+      }
+      throw new Error(`Upload failed (HTTP ${res.status})`);
+    }
+    throw new Error(json.message || `Upload failed (HTTP ${res.status})`);
   }
   return json.data.url as string;
 }

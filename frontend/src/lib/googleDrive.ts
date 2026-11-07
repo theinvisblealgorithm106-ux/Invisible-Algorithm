@@ -191,3 +191,45 @@ export async function deleteImageFromDrive(fileId: string): Promise<void> {
   const drive = getDriveClient();
   await drive.files.delete({ fileId }).catch(() => {});
 }
+
+
+// Turns a Drive/OAuth failure into something an admin can act on.
+//
+// Without this every upload problem surfaces as a flat "Upload failed",
+// which hides the one that actually happens in practice: the refresh token
+// expiring. Google reports that as `invalid_grant`, which is also what you
+// get after revoking access or changing the account password — and, most
+// often here, when the OAuth consent screen is left in "Testing" mode, where
+// refresh tokens are only valid for 7 days.
+export function describeDriveError(err: unknown): { message: string; status: number } {
+  const raw = err instanceof Error ? err.message : String(err);
+
+  if (/OAuth env vars are not configured/i.test(raw)) {
+    return {
+      message: 'Google Drive is not configured on the server (missing GOOGLE_OAUTH_* / GOOGLE_DRIVE_FOLDER_ID).',
+      status: 503,
+    };
+  }
+  if (/invalid_grant/i.test(raw)) {
+    return {
+      message: 'Google Drive sign-in has expired. The refresh token needs to be regenerated and updated on the server.',
+      status: 503,
+    };
+  }
+  if (/invalid_client|unauthorized_client/i.test(raw)) {
+    return {
+      message: 'Google rejected the Drive client credentials (check GOOGLE_OAUTH_CLIENT_ID / SECRET).',
+      status: 503,
+    };
+  }
+  if (/storageQuotaExceeded|quotaExceeded/i.test(raw)) {
+    return { message: 'The Google Drive account is out of storage.', status: 507 };
+  }
+  if (/File not found|notFound/i.test(raw)) {
+    return {
+      message: 'The configured Google Drive folder was not found (check GOOGLE_DRIVE_FOLDER_ID).',
+      status: 503,
+    };
+  }
+  return { message: 'Upload failed', status: 500 };
+}

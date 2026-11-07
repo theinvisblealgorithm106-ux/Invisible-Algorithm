@@ -6,6 +6,7 @@ import {
   isAllowedImageMimeType,
   uploadImageToDrive,
   ALLOWED_IMAGE_MIME_TYPES,
+  describeDriveError,
 } from '@/lib/googleDrive';
 
 // Shared image upload for the Team and Gallery admin panels.
@@ -49,7 +50,9 @@ export async function POST(req: Request) {
     return NextResponse.json({ success: true, data: { fileId, url: `/api/images/${fileId}` } }, { status: 201 });
   } catch (err) {
     if (err instanceof NextResponse) return err;
-    console.error(err);
-    return NextResponse.json({ success: false, message: 'Upload failed' }, { status: 500 });
+    console.error('[uploads/image]', err);
+    // Say *why* it failed — an expired Drive token is otherwise invisible.
+    const { message, status } = describeDriveError(err);
+    return NextResponse.json({ success: false, message }, { status });
   }
 }

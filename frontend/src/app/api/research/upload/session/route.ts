@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { requireAdminTabWrite } from '@/lib/auth-helpers';
-import { createResumableUploadSession } from '@/lib/googleDrive';
+import { createResumableUploadSession, describeDriveError } from '@/lib/googleDrive';
 
 const MAX_PDF_BYTES = 64 * 1024 * 1024; // 64MB
 
@@ -22,7 +22,8 @@ export async function POST(req: Request) {
     return NextResponse.json({ success: true, data: { uploadUrl, accessToken, driveFilename } });
   } catch (err) {
     if (err instanceof NextResponse) return err;
-    console.error(err);
-    return NextResponse.json({ success: false, message: 'Failed to start upload' }, { status: 500 });
+    console.error('[research/upload/session]', err);
+    const { message, status } = describeDriveError(err);
+    return NextResponse.json({ success: false, message }, { status });
   }
 }
